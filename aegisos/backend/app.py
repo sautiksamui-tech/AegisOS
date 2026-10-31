@@ -166,6 +166,19 @@ def get_latest_benchmark():
     return bm
 
 
+@app.get("/api/demo/code")
+def get_active_code():
+    content = PAYMENT_HANDLER_PATH.read_text(encoding="utf-8")
+    condition = get_current_condition()
+    target_start = content.find("def process_payment_attempt(")
+    target_end = content.find("\ndef execute_payment_request(")
+    fn_code = content[target_start:target_end].strip() if target_start != -1 and target_end != -1 else ""
+    return {
+        "condition": condition,
+        "function_code": fn_code,
+    }
+
+
 @app.post("/api/approve")
 def approve_validation(req: ApprovalRequest):
     approval_state.is_approved = True

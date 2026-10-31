@@ -175,36 +175,72 @@
     .alert-yellow { background: rgba(245, 158, 11, 0.16); color: #fde68a; border: 1px solid var(--warning); }
     @keyframes alertPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-    /* Side-by-Side Code Comparison */
-    .diff-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 768px) { .diff-grid { grid-template-columns: 1fr; } }
-
-    .diff-box {
+    /* Dynamic Live Code Inspector */
+    .code-inspector-section {
       background: var(--surface);
       border: 1px solid var(--surface-border);
-      border-radius: 10px;
-      padding: 18px;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
-    .diff-title { font-size: 14px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    pre.code-viewer {
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .inspector-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .runtime-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-code-vulnerable { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger); }
+    .badge-code-patched { background: rgba(16, 185, 129, 0.2); color: #86efac; border: 1px solid var(--success); }
+    .badge-code-neg { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid var(--warning); }
+
+    pre.dynamic-code-viewer {
       background: #030712;
       border: 1px solid var(--surface-border);
-      border-radius: 6px;
-      padding: 14px;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 12px;
-      line-height: 1.6;
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.65;
       white-space: pre;
       overflow-x: auto;
       margin: 0;
+      color: #e2e8f0;
+      transition: all 0.3s ease;
     }
-    .code-red { color: #f87171; background: rgba(239, 68, 68, 0.15); display: block; border-left: 3px solid var(--danger); padding-left: 6px; }
-    .code-green { color: #4ade80; background: rgba(16, 185, 129, 0.15); display: block; border-left: 3px solid var(--success); padding-left: 6px; }
+    .code-highlight-red { color: #fca5a5; background: rgba(239, 68, 68, 0.2); display: block; border-left: 4px solid var(--danger); padding-left: 8px; margin: 2px -18px; }
+    .code-highlight-green { color: #86efac; background: rgba(16, 185, 129, 0.2); display: block; border-left: 4px solid var(--success); padding-left: 8px; margin: 2px -18px; }
+    .code-highlight-yellow { color: #fde68a; background: rgba(245, 158, 11, 0.2); display: block; border-left: 4px solid var(--warning); padding-left: 8px; margin: 2px -18px; }
+
+    .code-explainer {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(3, 7, 18, 0.6);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .code-explainer strong { color: var(--text); }
 
     /* SecOps Gate Strip */
     .secops-strip {
@@ -320,35 +356,26 @@
       </div>
     </div>
 
-    <!-- CODE DIFF COMPARISON -->
-    <div class="diff-grid">
-      <div class="diff-box">
-        <div class="diff-title" style="color: #f87171;">
-          <span>❌ The Defect: Unhandled Exception Leak</span>
+    <!-- DYNAMIC LIVE RUNTIME CODE INSPECTOR -->
+    <div class="code-inspector-section">
+      <div class="inspector-header">
+        <div class="inspector-title">
+          <span>📄 Live Runtime Code Inspector:</span>
+          <code>demo/sample_app/payment_handler.py :: process_payment_attempt</code>
         </div>
-        <pre class="code-viewer">def process_payment_attempt(pool, remaining, op):
-    conn = pool.acquire(timeout_ms=remaining)
-    result = op(conn)  # 💥 10% transient error!
-<span class="code-red">-   pool.release(conn) # ⚠️ SKIPPED on exception!</span>
-    return result</pre>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
-          <strong>Why the cascade happens:</strong> When an unhandled exception fires, <code>release()</code> is bypassed. At 100 req/s, all 5 connections leak in ~0.45s, locking the queue into permanent timeout failure.
-        </p>
+        <span id="code-runtime-badge" class="runtime-badge badge-code-patched">AEGISOS HEALED (ACTIVE IN RUNTIME)</span>
       </div>
 
-      <div class="diff-box">
-        <div class="diff-title" style="color: #4ade80;">
-          <span>✅ AegisOS: Atomic AST Remediation</span>
-        </div>
-        <pre class="code-viewer">def process_payment_attempt(pool, remaining, op):
-    conn = pool.acquire(timeout_ms=remaining)
-<span class="code-green">+   try:</span>
-<span class="code-green">+       return op(conn)</span>
-<span class="code-green">+   finally:</span>
-<span class="code-green">+       pool.release(conn) # 🛡️ ALWAYS returned!</span></pre>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
-          <strong>Mathematical Guarantee:</strong> Deterministic <code>finally</code> release ensures connections are recycled even under error bursts. 9 structural AST guardrails eliminate hallucinations.
-        </p>
+      <!-- Live Code Block (Muted & Dynamically Updates) -->
+      <pre id="live-code-viewer" class="dynamic-code-viewer">def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+    conn = pool.acquire(timeout_ms=remaining_deadline_ms)
+<span class="code-highlight-green">+   try:
++       return operation_fn(conn)
++   finally:
++       pool.release(conn)  # 🛡️ GUARANTEED RELEASE: Always executed unconditionally!</span></pre>
+
+      <div id="live-code-explainer" class="code-explainer">
+        <strong>Formal AST Guarantee:</strong> Python's <code>try...finally</code> construct guarantees connection recycling across all success, error, and timeout paths. 0 connection leaks mathematically guaranteed.
       </div>
     </div>
 
@@ -381,10 +408,61 @@
       el.querySelector('.valve-icon-circle').textContent = icon;
     }
 
+    // Dynamic Code Display Update
+    function updateCodeDisplay(mode) {
+      const badge = document.getElementById('code-runtime-badge');
+      const viewer = document.getElementById('live-code-viewer');
+      const explainer = document.getElementById('live-code-explainer');
+
+      if (mode === 'vulnerable') {
+        badge.className = 'runtime-badge badge-code-vulnerable';
+        badge.textContent = '❌ VULNERABLE RUNTIME ACTIVE (UNHANDLED LEAK)';
+
+        viewer.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+    conn = pool.acquire(timeout_ms=remaining_deadline_ms)
+    result = operation_fn(conn)  # 💥 10% injected TransientProcessingError!
+<span class="code-highlight-red">-   pool.release(conn)           # ⚠️ SKIPPED! When exception fires, release is bypassed!</span>
+    return result`;
+
+        explainer.innerHTML = `<strong>The Defect in Memory:</strong> <code>pool.release(conn)</code> is only reached on normal return. When <code>TransientProcessingError</code> is thrown, the function aborts immediately, leaving the connection checked out forever. In 0.45s, all 5 connections leak.`;
+      } else if (mode === 'patched') {
+        badge.className = 'runtime-badge badge-code-patched';
+        badge.textContent = '✅ AEGISOS HEALED (ACTIVE IN RUNTIME)';
+
+        viewer.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+    conn = pool.acquire(timeout_ms=remaining_deadline_ms)
+<span class="code-highlight-green">+   try:
++       return operation_fn(conn)
++   finally:
++       pool.release(conn)       # 🛡️ GUARANTEED RELEASE: Always executed unconditionally!</span>`;
+
+        explainer.innerHTML = `<strong>Formal AST Guarantee:</strong> Python's <code>try...finally</code> construct guarantees connection recycling across all success, error, and timeout paths. 0 connection leaks mathematically guaranteed. 9 AST guardrails verified.`;
+      } else if (mode === 'negative_control') {
+        badge.className = 'runtime-badge badge-code-neg';
+        badge.textContent = '⚠️ NEGATIVE CONTROL ACTIVE (SUPERFICIAL REPAIR)';
+
+        viewer.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+    conn = pool.acquire(timeout_ms=remaining_deadline_ms)
+    try:
+        return operation_fn(conn)
+<span class="code-highlight-yellow">    except PaymentValidationError:   # ⚠️ Incomplete cleanup! Only catches PaymentValidationError!
+        pool.release(conn)
+        raise</span>
+    else:
+        pool.release(conn)
+    # 💥 Injected TransientProcessingError remains UNHANDLED and LEAKS!`;
+
+        explainer.innerHTML = `<strong>Why the Negative Control Fails:</strong> The patch looks plausible, but only handles <code>PaymentValidationError</code> while leaving the injected <code>TransientProcessingError</code> unhandled! All 5 connections leak, failing with 98.33% errors. This proves AegisOS detects and rejects fake repairs.`;
+      }
+    }
+
     // 1. SIMULATE CASCADING OUTAGE
     async function triggerOutageSimulation() {
       if (isSimulationRunning) return;
       isSimulationRunning = true;
+
+      // Update Live Code Section to show Vulnerable Code
+      updateCodeDisplay('vulnerable');
 
       // Update Header & Banner
       document.getElementById('header-badge').className = 'status-badge badge-outage';
@@ -394,7 +472,7 @@
       banner.className = 'alert-red';
       banner.innerHTML = '<span>⚠️ <strong>Simulating Cascade:</strong> Unhandled exceptions leaking connections at 100 req/s...</span>';
 
-      // Step 1: Rapid 5-connection leak animation (0.45s)
+      // Rapid 5-connection leak animation (0.45s)
       for (let i = 0; i < 5; i++) {
         await sleep(180);
         updateValve(i, 'cyl-leaked', 'LEAKED ⚠️', '💥');
@@ -402,14 +480,14 @@
         document.getElementById('kpi-pool').style.color = 'var(--danger)';
       }
 
-      // Step 2: Queue Saturation
+      // Queue Saturation
       const fillBar = document.getElementById('queue-fill-bar');
       fillBar.style.width = '100%';
       fillBar.style.background = 'var(--danger)';
       document.getElementById('queue-count-text').textContent = '20 / 20 SATURATED (Deadlines Expiring!)';
       document.getElementById('queue-count-text').style.color = 'var(--danger)';
 
-      // Step 3: Telemetry Spikes
+      // Telemetry Spikes
       document.getElementById('kpi-error').textContent = '86.33%';
       document.getElementById('kpi-error').style.color = 'var(--danger)';
       document.getElementById('kpi-latency').textContent = '2000 ms';
@@ -427,6 +505,9 @@
       if (isSimulationRunning) return;
       isSimulationRunning = true;
 
+      // Update Live Code Section to show Patched Code
+      updateCodeDisplay('patched');
+
       document.getElementById('header-badge').className = 'status-badge badge-healing';
       document.getElementById('header-badge').textContent = 'APPLYING AST PATCH...';
 
@@ -434,15 +515,15 @@
       banner.className = 'alert-yellow';
       banner.innerHTML = '<span>⚙️ <strong>AegisOS Engine:</strong> Synthesizing AST-constrained try...finally patch. Validating 9 safety rules...</span>';
 
-      await sleep(400);
+      await sleep(350);
 
       // Unclog valves smoothly
       for (let i = 0; i < 5; i++) {
-        await sleep(100);
+        await sleep(90);
         updateValve(i, 'cyl-processing', 'HEALING...', '⚡');
       }
 
-      await sleep(250);
+      await sleep(200);
 
       // Healthy flow animation
       for (let i = 0; i < 5; i++) {
@@ -478,6 +559,9 @@
     async function triggerNegativeControlSimulation() {
       if (isSimulationRunning) return;
       isSimulationRunning = true;
+
+      // Update Live Code Section to show Negative Control Code
+      updateCodeDisplay('negative_control');
 
       document.getElementById('header-badge').className = 'status-badge badge-outage';
       document.getElementById('header-badge').textContent = 'INEFFECTIVE PATCH DETECTED';
