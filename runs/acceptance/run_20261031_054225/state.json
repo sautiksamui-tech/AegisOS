@@ -1,0 +1,77 @@
+{
+  "run_id": "run_20261031_054225",
+  "created_at": "2026-10-31T05:42:25.762660+00:00",
+  "completed_stages": {
+    "stage_0_preflight": {
+      "stage": "stage_0_preflight",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:42:27.389188+00:00",
+      "output_file": "stage_0_preflight.json",
+      "sha256": "dd604ac20de5d676813dd521334a17c87e075e6d01b73905900fbac2e8c5c13f",
+      "test_command": "python -m aegisos.preflight",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    },
+    "stage_1_sample_app": {
+      "stage": "stage_1_sample_app",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:42:28.077529+00:00",
+      "output_file": "stage_1_sample_app.json",
+      "sha256": "d8a1b1e82633359d2cf98340454c7ced8755bb9be6467c47d4f1c19c65495efd",
+      "test_command": "pytest tests/aegis/test_ast_checker.py",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    },
+    "stage_2_dry_run": {
+      "stage": "stage_2_dry_run",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:42:47.409849+00:00",
+      "output_file": "stage_2_dry_run.json",
+      "sha256": "53ff91f4be30b1135047600e58786abef65c1a0802f799eeee55f60c626c0b9b",
+      "test_command": "python -m aegisos.dry_run",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    },
+    "stage_3_remediation": {
+      "stage": "stage_3_remediation",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:42:47.442402+00:00",
+      "output_file": "stage_3_remediation.json",
+      "sha256": "bc3189c7d26611e8494528a3fcbbbddb2e146167117b0dad743ee0585378c643",
+      "test_command": "python -m aegisos.remediation.verifier",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    },
+    "stage_4_sandbox": {
+      "stage": "stage_4_sandbox",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:42:53.258011+00:00",
+      "output_file": "stage_4_sandbox.json",
+      "sha256": "3dac9745583c9c8c7b4e8f65cc15e25e70d1d629fb8b1f11519d4d0466521225",
+      "test_command": "python -m aegisos.sandbox.verifier",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    },
+    "stage_5_dashboard": {
+      "stage": "stage_5_dashboard",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:42:54.375662+00:00",
+      "output_file": "stage_5_dashboard.json",
+      "sha256": "609ffa112dcbc5df83cfd6a892157fb45712f732c6ea139e464be58e1ba3b4e7",
+      "test_command": "pytest tests/aegis/test_backend.py",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    },
+    "stage_6_evidence": {
+      "stage": "stage_6_evidence",
+      "status": "COMPLETED",
+      "completed_at": "2026-10-31T05:43:13.710977+00:00",
+      "output_file": "stage_6_final_evidence.json",
+      "sha256": "0679618910d4e7548732f33efb64c99d3ce489c89b154869a4a5ceb798d15c12",
+      "test_command": "python -m aegisos.dry_run",
+      "exit_code": 0,
+      "log_reference": "execution.log"
+    }
+  },
+  "current_status": "VERIFIED"
+}

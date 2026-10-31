@@ -1,0 +1,50 @@
+{
+  "experiment_definition": {
+    "acceptance_thresholds": {
+      "error_rate_max_per_mille": 10,
+      "latency_p95_max_ms": 2000,
+      "throughput_min_req_per_sec": 80,
+      "max_pool_wait_events": 0,
+      "max_pool_acquisition_timeouts": 0,
+      "max_connection_leaks": 0
+    },
+    "arrival_interval_ms": 10,
+    "arrival_mode": "open_loop",
+    "concurrency_limit": 20,
+    "connection_hold_duration_ms": 20,
+    "end_to_end_deadline_ms": 2000,
+    "exception_probability_per_mille": 100,
+    "measurement_count": 300,
+    "number_of_rounds": 3,
+    "pool_size": 5,
+    "random_seed": 20261031,
+    "request_count": 300,
+    "retry_limit": 3,
+    "run_level_safety_cap_seconds": 30,
+    "schema_version": "1.0.0",
+    "warmup_count": 30
+  },
+  "fixed_execution_environment": {
+    "container_cpu_limit_millicores": 2000,
+    "container_image_digest": "sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159",
+    "container_memory_limit_bytes": 1073741824,
+    "container_platform_and_architecture": "linux/amd64",
+    "container_user_id": 1000,
+    "docker_server_version": "29.8.0",
+    "dropped_linux_capabilities": [
+      "ALL"
+    ],
+    "network_mode": "none",
+    "no_new_privileges": true,
+    "normalized_workspace_mount_destination": "/workspace",
+    "pid_limit": 100,
+    "python_runtime_version_inside_image": "3.12.13",
+    "readonly_root_filesystem": true,
+    "workspace_readonly": true,
+    "writable_tmpfs_config": "/tmp:rw,noexec,nosuid,size=64m"
+  },
+  "workload_identity": {
+    "fault_injection_plan_sha256": "ec48da522975844f2b515f87985d93fecbe1c907a02bbedda5f930d0a445704e",
+    "workload_schedule_sha256": "1104d8ab34056b6345e964b6d6f05117caed0638b378a74bc5fbbd0ca68356d2"
+  }
+}

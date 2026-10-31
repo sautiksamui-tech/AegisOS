@@ -1,0 +1,22 @@
+[2026-10-31T05:42:25.762660+00:00] Starting AegisOS acceptance execution for run: run_20261031_054225
+[2026-10-31T05:42:25.765652+00:00] >>> Running Stage 0: Environment Preflight
+[2026-10-31T05:42:27.397023+00:00] Successfully committed stage: stage_0_preflight (sha256: dd604ac20de5d676...)
+[2026-10-31T05:42:27.398024+00:00] >>> Running Stage 1: Sample Application & Baseline AST
+[2026-10-31T05:42:28.080529+00:00] Successfully committed stage: stage_1_sample_app (sha256: d8a1b1e82633359d...)
+[2026-10-31T05:42:28.082529+00:00] >>> Running Stage 2: 4-Condition Benchmark Dry Run
+[2026-10-31T05:42:47.416299+00:00] Successfully committed stage: stage_2_dry_run (sha256: 53ff91f4be30b113...)
+[2026-10-31T05:42:47.417305+00:00] >>> Running Stage 3: Diagnosis and Remediation Engine
+[2026-10-31T05:42:47.446156+00:00] Successfully committed stage: stage_3_remediation (sha256: bc3189c7d26611e8...)
+[2026-10-31T05:42:47.447159+00:00] >>> Running Stage 4: Docker Sandbox Positive & Negative Controls
+[2026-10-31T05:42:53.265113+00:00] Successfully committed stage: stage_4_sandbox (sha256: 3dac9745583c9c8c...)
+[2026-10-31T05:42:53.267227+00:00] >>> Running Stage 5: Minimal Dashboard & Backend Verification
+[2026-10-31T05:42:54.378668+00:00] Successfully committed stage: stage_5_dashboard (sha256: 609ffa112dcbc5df...)
+[2026-10-31T05:42:54.380671+00:00] >>> Running Stage 6: Final Evidence Generation
+[2026-10-31T05:42:54.383663+00:00] Executing final measured benchmark for condition: healthy
+[2026-10-31T05:42:57.709208+00:00] Executing final measured benchmark for condition: vulnerable
+[2026-10-31T05:43:03.052795+00:00] Executing final measured benchmark for condition: patched
+[2026-10-31T05:43:06.375267+00:00] Executing final measured benchmark for condition: negative_control
+[2026-10-31T05:43:13.714390+00:00] Successfully committed stage: stage_6_evidence (sha256: 0679618910d4e754...)
+[2026-10-31T05:43:13.727155+00:00] >>> Generating independent validation report...
+[2026-10-31T05:43:13.748439+00:00] >>> Final Validation Outcome: VERIFIED
+[2026-10-31T05:43:13.753029+00:00] AegisOS acceptance execution completed successfully!

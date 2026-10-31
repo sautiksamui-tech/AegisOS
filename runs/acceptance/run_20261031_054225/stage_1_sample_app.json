@@ -1,0 +1,6 @@
+{
+  "stage": "stage_1_sample_app",
+  "passed": true,
+  "baseline_target": "demo/sample_app/payment_handler.py",
+  "ast_test_output": "============================= test session starts =============================\nplatform win32 -- Python 3.12.13, pytest-9.2.0, pluggy-1.7.0\nrootdir: C:\\Users\\SAUTIK SAMUI\\DNS_Tunneling_Hackathon\nconfigfile: pyproject.toml\nplugins: anyio-4.15.1\ncollected 3 items\n\ntests\\aegis\\test_ast_checker.py ...                                      [100%]\n\n============================== 3 passed in 0.06s =============================="
+}

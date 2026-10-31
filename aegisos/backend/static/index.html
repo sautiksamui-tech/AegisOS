@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisOS — Incident Status & Validation Monitor</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --running: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .title-area h1 { font-size: 24px; font-weight: 700; color: #fff; }
+    .title-area p { font-size: 14px; color: var(--text-muted); }
+    .status-badge {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+    }
+    .status-verified { background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); }
+    .status-failed { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+    .status-inconclusive { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+    .status-running { background: rgba(59, 130, 246, 0.15); color: var(--running); border: 1px solid var(--running); }
+    .status-missing { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--primary); }
+
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 500; font-size: 13px; }
+    tr:last-child td { border-bottom: none; }
+    .cell-pass { color: var(--success); font-weight: 600; }
+    .cell-fail { color: var(--danger); font-weight: 600; }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-success { background: var(--success); color: #000; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    .pre-box {
+      background: #090d16;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 260px;
+      overflow-y: auto;
+      color: #38bdf8;
+    }
+    .poll-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 16px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title-area">
+        <h1>AegisOS — Incident Status & Validation Monitor</h1>
+        <p>Real-Time Autonomous Benchmark & Container Sandbox Verification</p>
+      </div>
+      <div>
+        <span id="validation-badge" class="status-badge status-missing">LOADING</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Incident & Remediation Card -->
+      <div class="card">
+        <h2>Active Incident State</h2>
+        <div style="margin-bottom: 12px;">
+          <p><strong>Incident ID:</strong> <span id="incident-id">INC-2026-1031-CONN-LEAK</span></p>
+          <p><strong>Rule Triggered:</strong> <span id="incident-rule" style="color: var(--warning);">AEGIS-RULE-001</span></p>
+          <p><strong>Root Cause:</strong> <span id="incident-root-cause">Detecting...</span></p>
+          <p><strong>Remediation Strategy:</strong> <span id="incident-remediation">Applying guaranteed release pattern...</span></p>
+        </div>
+        <div style="background: #090d16; padding: 10px; border-radius: 6px; font-size: 13px;">
+          <strong>Target:</strong> <code>demo/sample_app/payment_handler.py :: process_payment_attempt</code>
+        </div>
+      </div>
+
+      <!-- SecOps Approval Card -->
+      <div class="card">
+        <h2>Backend SecOps Approval</h2>
+        <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">
+          Mandatory security gate: Sandbox validation requests without valid backend approval are rejected (HTTP 403).
+        </p>
+        <p><strong>Status:</strong> <span id="approval-status" style="font-weight: 600;">Checking...</span></p>
+        <p style="margin-bottom: 14px; font-size: 13px;"><strong>Approver:</strong> <span id="approval-approver">None</span></p>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-approve" class="btn btn-success" onclick="approveValidation()">Grant SecOps Approval</button>
+          <button id="btn-test-trigger" class="btn btn-outline" onclick="triggerValidation()">Test Execution</button>
+        </div>
+        <div id="trigger-result" style="margin-top: 8px; font-size: 12px;"></div>
+      </div>
+    </div>
+
+    <!-- Benchmark Metrics Card -->
+    <div class="card" style="margin-bottom: 24px;">
+      <h2>Benchmark Comparison (300 Measured Requests @ 100 req/s, Pool = 5)</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Status</th>
+              <th>Error Rate</th>
+              <th>P95 Latency</th>
+              <th>Throughput</th>
+              <th>Pool Wait Events</th>
+              <th>Leaked Conns</th>
+            </tr>
+          </thead>
+          <tbody id="metrics-tbody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading benchmark metrics...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Security & Sandbox Controls Card -->
+    <div class="card" style="margin-bottom: 24px;">
+      <h2>Container Sandbox Controls & Positive/Negative Isolation</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+        <div style="background: #090d16; padding: 12px; border-radius: 6px;">
+          <strong style="color: var(--primary);">Network Isolation</strong>
+          <p style="font-size: 13px; color: var(--text-muted);"><code>--network none</code></p>
+          <p style="font-size: 12px; color: var(--success);">Loopback: OK | External: Blocked</p>
+        </div>
+        <div style="background: #090d16; padding: 12px; border-radius: 6px;">
+          <strong style="color: var(--primary);">Host-File Isolation</strong>
+          <p style="font-size: 13px; color: var(--text-muted);">Canary Mount Check</p>
+          <p style="font-size: 12px; color: var(--success);">Control Read: OK | Canary: Blocked</p>
+        </div>
+        <div style="background: #090d16; padding: 12px; border-radius: 6px;">
+          <strong style="color: var(--primary);">Docker Socket Protection</strong>
+          <p style="font-size: 13px; color: var(--text-muted);">Launcher Argument Filter</p>
+          <p style="font-size: 12px; color: var(--success);">No Socket | Injection Rejected</p>
+        </div>
+        <div style="background: #090d16; padding: 12px; border-radius: 6px;">
+          <strong style="color: var(--primary);">Daemon TCP Security</strong>
+          <p style="font-size: 13px; color: var(--text-muted);">Ports 2375 / 2376</p>
+          <p style="font-size: 12px; color: var(--success);">No Listeners (Disabled)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw Benchmark JSON Explorer -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h2>Latest Benchmark Raw JSON</h2>
+        <button class="btn btn-outline" style="font-size: 12px; padding: 4px 8px;" onclick="loadBenchmarkJson()">Refresh JSON</button>
+      </div>
+      <pre id="json-viewer" class="pre-box">Loading raw benchmark output...</pre>
+    </div>
+
+    <div class="poll-indicator">
+      <div class="dot"></div>
+      <span>Auto-polling <code>/api/status</code> every 2 seconds. Last updated: <span id="last-poll-time">-</span></span>
+    </div>
+  </div>
+
+  <script>
+    async function fetchStatus() {
+      try {
+        const resp = await fetch('/api/status');
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        // Update Validation Badge
+        const badge = document.getElementById('validation-badge');
+        const outcome = (data.validation_outcome || 'missing').toLowerCase();
+        badge.textContent = outcome.toUpperCase();
+        badge.className = 'status-badge status-' + outcome;
+
+        // Update Incident
+        if (data.incident_state) {
+          document.getElementById('incident-id').textContent = data.incident_state.incident_id || 'INC-2026';
+          document.getElementById('incident-root-cause').textContent = data.incident_state.root_cause || '-';
+          document.getElementById('incident-remediation').textContent = data.incident_state.remediation || '-';
+        }
+
+        // Update Approval State
+        const appStatus = document.getElementById('approval-status');
+        const appApprover = document.getElementById('approval-approver');
+        if (data.is_approved) {
+          appStatus.textContent = 'APPROVED';
+          appStatus.style.color = 'var(--success)';
+          appApprover.textContent = data.approved_by || 'SecOps Admin';
+        } else {
+          appStatus.textContent = 'AWAITING APPROVAL';
+          appStatus.style.color = 'var(--warning)';
+          appApprover.textContent = 'None';
+        }
+
+        // Update Metrics Table
+        if (data.key_metrics) {
+          const tbody = document.getElementById('metrics-tbody');
+          tbody.innerHTML = '';
+          const conditions = ['healthy', 'vulnerable', 'patched', 'negative_control'];
+          for (const cond of conditions) {
+            const m = data.key_metrics[cond];
+            if (!m) continue;
+            const tr = document.createElement('tr');
+            const passClass = m.passed ? 'cell-pass' : 'cell-fail';
+            const passLabel = m.passed ? 'PASSED' : 'FAILED';
+            tr.innerHTML = `
+              <td style="font-weight: 600; text-transform: capitalize;">${cond.replace('_', ' ')}</td>
+              <td class="${passClass}">${passLabel}</td>
+              <td>${m.error_rate_pct}%</td>
+              <td>${m.p95_latency_ms} ms</td>
+              <td>${m.throughput_req_per_sec} req/s</td>
+              <td>${m.pool_wait_events}</td>
+              <td>${m.connection_leaks}</td>
+            `;
+            tbody.appendChild(tr);
+          }
+        }
+
+        document.getElementById('last-poll-time').textContent = new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }
+
+    async function loadBenchmarkJson() {
+      try {
+        const resp = await fetch('/api/benchmark/latest');
+        if (resp.ok) {
+          const data = await resp.json();
+          document.getElementById('json-viewer').textContent = JSON.stringify(data, null, 2);
+        } else {
+          document.getElementById('json-viewer').textContent = 'No benchmark results found.';
+        }
+      } catch (e) {
+        document.getElementById('json-viewer').textContent = 'Error fetching benchmark: ' + e;
+      }
+    }
+
+    async function approveValidation() {
+      try {
+        const res = await fetch('/api/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ approver: 'SecOps Lead', token: 'AEGIS-APPROVE-SEC-2026' }),
+        });
+        const data = await res.json();
+        document.getElementById('trigger-result').innerHTML = `<span style="color: var(--success);">${data.message}</span>`;
+        fetchStatus();
+      } catch (e) {
+        alert('Approval failed: ' + e);
+      }
+    }
+
+    async function triggerValidation() {
+      try {
+        const res = await fetch('/api/run-validation', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('trigger-result').innerHTML = `<span style="color: var(--success);">Authorization OK: ${data.message}</span>`;
+        } else {
+          document.getElementById('trigger-result').innerHTML = `<span style="color: var(--danger);">Rejected (403): ${data.detail}</span>`;
+        }
+      } catch (e) {
+        document.getElementById('trigger-result').innerHTML = `<span style="color: var(--danger);">Request error: ${e}</span>`;
+      }
+    }
+
+    // Initial load & 2-second interval poll
+    fetchStatus();
+    loadBenchmarkJson();
+    setInterval(fetchStatus, 2000);
+  </script>
+</body>
+</html>

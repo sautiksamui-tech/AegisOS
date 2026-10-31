@@ -1,0 +1,15 @@
+{
+  "run_id": "run_20261031_054225",
+  "timestamp": "2026-10-31T05:43:13.726155+00:00",
+  "canonical_config_hash": "def171a8356b576de4d1723a1bb89a64d2d46156899d28eb097bc751394ae8ef",
+  "files": {
+    "canonical_config.json": "2c47dda14219bf1d05c136991f3aae66887b4cdf72a1c6ccc95c7617e64f468b",
+    "stage_0_preflight.json": "dd604ac20de5d676813dd521334a17c87e075e6d01b73905900fbac2e8c5c13f",
+    "stage_1_sample_app.json": "d8a1b1e82633359d2cf98340454c7ced8755bb9be6467c47d4f1c19c65495efd",
+    "stage_2_dry_run.json": "53ff91f4be30b1135047600e58786abef65c1a0802f799eeee55f60c626c0b9b",
+    "stage_3_remediation.json": "bc3189c7d26611e8494528a3fcbbbddb2e146167117b0dad743ee0585378c643",
+    "stage_4_sandbox.json": "3dac9745583c9c8c7b4e8f65cc15e25e70d1d629fb8b1f11519d4d0466521225",
+    "stage_5_dashboard.json": "609ffa112dcbc5df83cfd6a892157fb45712f732c6ea139e464be58e1ba3b4e7",
+    "stage_6_final_evidence.json": "0679618910d4e7548732f33efb64c99d3ce489c89b154869a4a5ceb798d15c12"
+  }
+}

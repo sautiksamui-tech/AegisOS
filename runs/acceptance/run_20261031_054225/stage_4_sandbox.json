@@ -1,0 +1,33 @@
+{
+  "stage": "stage_4_sandbox_verification",
+  "passed": true,
+  "network_isolation": {
+    "loopback_tcp_server_succeeded": true,
+    "external_probe_failed": true,
+    "network_mode": "none",
+    "passed": true
+  },
+  "host_file_isolation": {
+    "control_file_read_succeeded": true,
+    "canary_file_inaccessible": true,
+    "canary_host_path": "C:\\Users\\SAUTIK SAMUI\\aegis_canary_ad7a28cd-4059-415f-8b17-5e6bbfcb00c0.txt",
+    "mount_isolation_verified": true,
+    "passed": true
+  },
+  "docker_socket_isolation": {
+    "docker_socket_absent": true,
+    "no_socket_mounted": true,
+    "passed": true
+  },
+  "launcher_injection_test": {
+    "socket_injection_attempt_rejected": true,
+    "arbitrary_mount_forbidden": true,
+    "passed": true
+  },
+  "docker_daemon_tcp": {
+    "port_2375_listener": false,
+    "port_2376_listener": false,
+    "secure": true,
+    "passed": true
+  }
+}

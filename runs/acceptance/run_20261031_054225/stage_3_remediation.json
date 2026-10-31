@@ -1,0 +1,42 @@
+{
+  "stage": "stage_3_diagnosis_and_remediation",
+  "passed": true,
+  "diagnosis": {
+    "vulnerability_detected": true,
+    "rule_id": "AEGIS-RULE-001-CONNECTION-LEAK-ON-EXCEPTION",
+    "description": "Connection acquired without guaranteed try...finally cleanup. TransientProcessingError leaks connection.",
+    "target_file": "demo/sample_app/payment_handler.py",
+    "target_function": "process_payment_attempt",
+    "remediation_strategy": "Wrap operation in try...finally block ensuring pool.release(conn) is executed unconditionally."
+  },
+  "correct_patch": {
+    "patch_digest": "b921281600cde650383e0b2f7ebb3104534d81b7accb4f23b1bf5b2f8e2b08f5",
+    "status": "PASSED",
+    "rules_passed": [
+      "only_designated_file_changed",
+      "only_process_payment_attempt_changed",
+      "signature_and_decorators_unchanged",
+      "module_level_configuration_unchanged",
+      "retry_logic_unchanged",
+      "fault_injection_logic_unchanged",
+      "connection_hold_duration_unchanged",
+      "no_new_imports_or_globals",
+      "ast_equivalence_verified"
+    ]
+  },
+  "negative_control": {
+    "patch_digest": "2ac5ad3ad6c09dbb73b8d38f061065faef1d65dc2deb8fd0178822f9edea1dd9",
+    "status": "PASSED",
+    "rules_passed": [
+      "only_designated_file_changed",
+      "only_process_payment_attempt_changed",
+      "signature_and_decorators_unchanged",
+      "module_level_configuration_unchanged",
+      "retry_logic_unchanged",
+      "fault_injection_logic_unchanged",
+      "connection_hold_duration_unchanged",
+      "no_new_imports_or_globals",
+      "ast_equivalence_verified"
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "stage": "stage_0_preflight",
+  "passed": true,
+  "checks": {
+    "os": {
+      "expected": "Windows",
+      "actual": "Windows",
+      "release": "11",
+      "version": "10.0.26300",
+      "passed": true
+    },
+    "powershell": {
+      "version": "5.1.26100.9711",
+      "passed": true
+    },
+    "python_host": {
+      "version": "3.12.13",
+      "executable": "C:\\Users\\SAUTIK SAMUI\\DNS_Tunneling_Hackathon\\.venv\\Scripts\\python.exe",
+      "is_312": true,
+      "passed": true
+    },
+    "node": {
+      "version": "v24.15.0",
+      "passed": true
+    },
+    "git": {
+      "version": "git version 2.53.0.windows.2",
+      "passed": true
+    },
+    "docker": {
+      "linux_containers": true,
+      "details": {
+        "server_version": "29.8.0",
+        "ostype": "linux",
+        "architecture": "x86_64",
+        "total_memory_bytes": 9044672512,
+        "kernel_version": "6.6.87.2-microsoft-standard-WSL2",
+        "cpus": 18
+      },
+      "passed": true
+    },
+    "wsl2": {
+      "kernel": "6.6.87.2-microsoft-standard-WSL2",
+      "detected": true,
+      "passed": true
+    },
+    "memory": {
+      "docker_memory_bytes": 9044672512,
+      "docker_memory_gib": 8.42,
+      "passed": true
+    },
+    "docker_daemon_ports": {
+      "port_2375_listener": false,
+      "port_2376_listener": false,
+      "secure": true,
+      "passed": true
+    },
+    "workspace": {
+      "path": "C:\\Users\\SAUTIK SAMUI\\DNS_Tunneling_Hackathon",
+      "exists": true,
+      "passed": true
+    }
+  },
+  "normalized_workspace": "/workspace",
+  "host_workspace": "C:/Users/SAUTIK SAMUI/DNS_Tunneling_Hackathon"
+}
