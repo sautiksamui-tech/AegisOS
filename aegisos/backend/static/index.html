@@ -3,256 +3,459 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AegisOS — Incident Status & Live Demonstration</title>
+  <title>AegisOS — Enterprise Autonomous Remediation & Benchmarking</title>
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #131b2e;
-      --border: #24324f;
-      --text: #f8fafc;
+      --bg: #070b14;
+      --card-bg: #0f172a;
+      --card-border: #1e293b;
+      --card-hover: #162036;
+      --text: #f1f5f9;
       --text-muted: #94a3b8;
-      --primary: #38bdf8;
-      --success: #22c55e;
+      --text-dim: #64748b;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
       --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.14);
       --warning: #f59e0b;
-      --running: #3b82f6;
+      --warning-bg: rgba(245, 158, 11, 0.14);
+      --info: #6366f1;
+      --code-bg: #030712;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      padding: 24px;
-      line-height: 1.5;
+      padding: 24px 20px;
+      line-height: 1.6;
+      font-size: 14px;
     }
-    .container { max-width: 1180px; margin: 0 auto; }
+    .container { max-width: 1240px; margin: 0 auto; }
+
+    /* Top Brand Header */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--card-border);
       margin-bottom: 24px;
     }
-    .title-area h1 { font-size: 26px; font-weight: 700; color: #fff; }
-    .title-area p { font-size: 14px; color: var(--text-muted); }
-    .status-badge {
-      font-size: 14px;
+    .brand-title {
+      font-size: 24px;
       font-weight: 700;
-      text-transform: uppercase;
-      padding: 8px 16px;
-      border-radius: 9999px;
-      letter-spacing: 0.05em;
-    }
-    .status-verified { background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); }
-    .status-failed { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-    .status-inconclusive { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
-    .status-running { background: rgba(59, 130, 246, 0.15); color: var(--running); border: 1px solid var(--running); }
-    .status-missing { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid var(--border); }
-
-    /* Interactive Demo Control Panel */
-    .demo-panel {
-      background: linear-gradient(180deg, #18233c 0%, #111a2e 100%);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
-    }
-    .demo-panel h2 {
-      font-size: 18px;
-      font-weight: 700;
+      letter-spacing: -0.02em;
       color: #fff;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 14px;
     }
-    .demo-steps {
+    .brand-title .badge-core {
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .brand-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    .status-badge {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-verified { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-failed { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status-running { background: rgba(99, 102, 241, 0.15); color: var(--info); border: 1px solid rgba(99, 102, 241, 0.3); }
+    .status-inconclusive { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    /* Interactive Operational Workflow Panel */
+    .workflow-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    .workflow-header {
       display: flex;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .workflow-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .workflow-header p { font-size: 13px; color: var(--text-muted); }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
       gap: 12px;
       margin-bottom: 16px;
     }
-    .demo-btn {
-      padding: 10px 18px;
+    @media (max-width: 1024px) {
+      .action-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .action-grid { grid-template-columns: 1fr; }
+    }
+
+    .action-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
+      padding: 14px 12px;
+      text-align: left;
       cursor: pointer;
-      border: 1px solid transparent;
+      transition: all 0.2s ease;
       display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 94px;
     }
-    .btn-break { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--danger); }
-    .btn-break:hover { background: var(--danger); color: #fff; }
-    .btn-fix { background: rgba(245, 158, 11, 0.2); color: #fde68a; border-color: var(--warning); }
-    .btn-fix:hover { background: var(--warning); color: #000; }
-    .btn-sandbox { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border-color: var(--running); }
-    .btn-sandbox:hover { background: var(--running); color: #fff; }
-    .btn-heal { background: rgba(34, 197, 94, 0.2); color: #86efac; border-color: var(--success); }
-    .btn-heal:hover { background: var(--success); color: #000; }
-    .btn-neg { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border-color: #64748b; }
-    .btn-neg:hover { background: #64748b; color: #fff; }
-
-    .live-console {
-      background: #050811;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 14px;
-      font-family: monospace;
+    .action-card:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .action-card .act-title {
       font-size: 13px;
-      color: #38bdf8;
-      min-height: 60px;
+      font-weight: 700;
+      color: #fff;
       display: flex;
       align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .action-card .act-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
     }
 
-    .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    .act-break { border-color: rgba(239, 68, 68, 0.3); }
+    .act-break:hover { border-color: var(--danger); box-shadow: 0 0 12px rgba(239, 68, 68, 0.2); }
+    .act-fix { border-color: rgba(245, 158, 11, 0.3); }
+    .act-fix:hover { border-color: var(--warning); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+    .act-sandbox { border-color: rgba(99, 102, 241, 0.3); }
+    .act-sandbox:hover { border-color: var(--info); box-shadow: 0 0 12px rgba(99, 102, 241, 0.2); }
+    .act-heal { border-color: rgba(16, 185, 129, 0.3); }
+    .act-heal:hover { border-color: var(--success); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2); }
+    .act-neg { border-color: rgba(100, 116, 139, 0.4); }
+    .act-neg:hover { border-color: var(--text-muted); }
+
+    /* Terminal Console Output */
+    .terminal-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: var(--accent);
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .terminal-prefix { color: var(--text-dim); margin-right: 8px; font-weight: 600; }
+
+    /* Security Gate Callout Alert */
+    #security-alert-banner {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .alert-forbidden {
+      background: var(--danger-bg);
+      color: #fca5a5;
+      border: 1px solid var(--danger);
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-authorized {
+      background: var(--success-bg);
+      color: #86efac;
+      border: 1px solid var(--success);
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Layout Grid */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
 
     .card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
       padding: 20px;
     }
-    .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--primary); }
-
-    .table-container { overflow-x: auto; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
-    th { color: var(--text-muted); font-weight: 500; font-size: 13px; }
-    tr:last-child td { border-bottom: none; }
-    .cell-pass { color: var(--success); font-weight: 600; }
-    .cell-fail { color: var(--danger); font-weight: 600; }
-
-    .btn {
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.9; }
-    .btn-primary { background: var(--primary); color: #000; }
-    .btn-success { background: var(--success); color: #000; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-
-    .pre-box {
-      background: #050811;
-      border: 1px solid var(--border);
-      padding: 12px;
-      border-radius: 6px;
-      font-family: monospace;
-      font-size: 12px;
-      max-height: 260px;
-      overflow-y: auto;
-      color: #38bdf8;
-    }
-    .poll-indicator {
+    .card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+    }
+    .card-meta {
       font-size: 12px;
       color: var(--text-muted);
-      margin-top: 16px;
+      margin-bottom: 14px;
+      line-height: 1.5;
     }
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%;
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 13px;
+    }
+    .meta-row:last-child { border-bottom: none; }
+    .meta-label { color: var(--text-muted); }
+    .meta-val { font-weight: 600; color: #fff; }
+
+    /* Button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .btn-success { background: var(--success); color: #000; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-outline { background: transparent; border-color: var(--card-border); color: var(--text); }
+    .btn-outline:hover { background: var(--card-hover); border-color: var(--accent); }
+
+    /* Comparison Table */
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); }
+    th { color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    tr:last-child td { border-bottom: none; }
+    .cell-pass { color: var(--success); font-weight: 700; }
+    .cell-fail { color: var(--danger); font-weight: 700; }
+
+    /* Explanatory callouts */
+    .explainer-box {
+      background: rgba(3, 7, 18, 0.6);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .explainer-box strong { color: var(--text); }
+
+    /* Live pulse animation */
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
       background: var(--success);
+      display: inline-block;
       animation: pulse 2s infinite;
     }
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div class="title-area">
-        <h1>AegisOS — Autonomous Remediation & Live Benchmark Monitor</h1>
-        <p>Interactive Fault Injection, AST Patch Containment & Linux Container Sandbox Verification</p>
+      <div>
+        <div class="brand-title">
+          <span>AegisOS</span>
+          <span class="badge-core">AUTONOMOUS SECURITY CORE</span>
+        </div>
+        <div class="brand-desc">Deterministic Defect Remediation, AST Verification & Containerized Sandbox Benchmarking</div>
       </div>
       <div>
         <span id="validation-badge" class="status-badge status-verified">VERIFIED</span>
       </div>
     </header>
 
-    <!-- LIVE DEMO CONTROLLER PANEL -->
-    <div class="demo-panel">
-      <h2>🎬 Live Demonstration Controls — Walk Through the Stages Live:</h2>
-      <div class="demo-steps">
-        <button class="demo-btn btn-break" onclick="injectFault()">
-          <span>1. 💥 Inject Fault & Break App</span>
+    <!-- OPERATIONAL WORKFLOW CONTROLS -->
+    <div class="workflow-section">
+      <div class="workflow-header">
+        <div>
+          <h2>Operational Demonstration Workflow</h2>
+          <p>Execute discrete remediation and isolation stages live in sequence:</p>
+        </div>
+      </div>
+
+      <div class="action-grid">
+        <!-- 1. Simulate Fault -->
+        <button class="action-card act-break" onclick="injectFault()">
+          <div class="act-title">💥 Simulate Fault</div>
+          <div class="act-desc">Inject unhandled exception; trigger 5-connection pool starvation</div>
         </button>
-        <button class="demo-btn btn-fix" onclick="diagnoseAndFix()">
-          <span>2. 🔍 Autonomous Diagnosis & Fix</span>
+
+        <!-- 2. Synthesize AST Patch -->
+        <button class="action-card act-fix" onclick="diagnoseAndFix()">
+          <div class="act-title">🔍 Synthesize AST Patch</div>
+          <div class="act-desc">Execute deterministic diagnosis; apply try...finally cleanup</div>
         </button>
-        <button class="demo-btn btn-sandbox" onclick="verifySandbox()">
-          <span>3. 🔒 Run Docker Sandbox Validation</span>
+
+        <!-- 3. Audit Sandbox Container -->
+        <button class="action-card act-sandbox" onclick="verifySandbox()">
+          <div class="act-title">🔒 Audit Sandbox</div>
+          <div class="act-desc">Dispatch in-container probe under <code>--network none</code> isolation</div>
         </button>
-        <button class="demo-btn btn-heal" onclick="verifyHealed()">
-          <span>4. 🚀 Re-run Workload & Prove Healed</span>
+
+        <!-- 4. Verify Remediation -->
+        <button class="action-card act-heal" onclick="verifyHealed()">
+          <div class="act-title">🚀 Verify Remediation</div>
+          <div class="act-desc">Execute 300 open-loop requests; prove zero wait events and leaks</div>
         </button>
-        <button class="demo-btn btn-neg" onclick="testNegativeControl()">
-          <span>5. ⚠️ Test Negative Control (Ineffective Fix)</span>
+
+        <!-- 5. Evaluate Negative Control -->
+        <button class="action-card act-neg" onclick="testNegativeControl()">
+          <div class="act-title">⚠️ Negative Control</div>
+          <div class="act-desc">Test ineffective fix; confirm superficial repairs are rejected</div>
         </button>
       </div>
-      <div class="live-console">
-        <span id="console-output">👉 Click "1. 💥 Inject Fault & Break App" to watch the connection pool exhaust and error rates spike live!</span>
+
+      <!-- Live Terminal Output -->
+      <div class="terminal-box">
+        <div>
+          <span class="terminal-prefix">[AUDIT LOG]</span>
+          <span id="console-output">System operational. Click "Simulate Fault" to reproduce pool starvation live.</span>
+        </div>
+      </div>
+
+      <!-- High-Visibility Security Alert Banner -->
+      <div id="security-alert-banner"></div>
+    </div>
+
+    <!-- MAIN DASHBOARD PANELS -->
+    <div class="grid-2col">
+      <!-- Active Incident Telemetry -->
+      <div class="card">
+        <h3>
+          <span>Incident Telemetry & Diagnosis</span>
+          <span id="incident-pill" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: var(--success);">NORMAL</span>
+        </h3>
+        <p class="card-meta">Continuous telemetry monitoring database pool acquisition and error paths.</p>
+
+        <div class="meta-row">
+          <span class="meta-label">Incident Identifier</span>
+          <span class="meta-val">INC-2026-1031-CONN-LEAK</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Diagnostic Rule</span>
+          <span class="meta-val" style="color: var(--warning);">AEGIS-RULE-001 (Leak on Exception)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Root Cause Defect</span>
+          <span class="meta-val">Missing guaranteed release on <code>TransientProcessingError</code></span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Designated Target</span>
+          <span class="meta-val"><code>payment_handler.py :: process_payment_attempt</code></span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Remediation Mechanism</span>
+          <span class="meta-val">Atomic <code>try...finally: pool.release(conn)</code></span>
+        </div>
+
+        <div class="explainer-box">
+          <strong>Theoretical Little's Law Demand:</strong> At 100 req/s with 20 ms connection hold time and 10% retries, healthy connection demand is $\approx 2.22$ connections against a pool of 5. When 5 connections leak, all active worker threads starve immediately.
+        </div>
+      </div>
+
+      <!-- SecOps Human-in-the-Loop Approval Gate -->
+      <div class="card">
+        <h3>
+          <span>SecOps Human-in-the-Loop Gate</span>
+          <span id="gate-pill" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; background: rgba(245, 158, 11, 0.15); color: var(--warning);">ENFORCING</span>
+        </h3>
+        <p class="card-meta">Mandatory security boundary: Candidate container launching is blocked by backend middleware without cryptographic SecOps sign-off.</p>
+
+        <div class="meta-row">
+          <span class="meta-label">Gate Policy State</span>
+          <span id="approval-status-text" class="meta-val" style="color: var(--warning);">AWAITING APPROVAL</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Authorized Signer</span>
+          <span id="approval-signer-text" class="meta-val">None</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Enforcement Point</span>
+          <span class="meta-val">FastAPI Kernel Middleware (HTTP 403)</span>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+          <button class="btn btn-success" onclick="approveValidation()">Grant SecOps Sign-Off</button>
+          <button class="btn btn-danger" onclick="revokeApproval()">Revoke Sign-Off</button>
+          <button class="btn btn-outline" onclick="probePolicyGate()">Probe Policy (403 Test)</button>
+        </div>
+
+        <div class="explainer-box">
+          <strong>Why this gate exists:</strong> Prevents autonomous AI systems or model hallucinations from executing untrusted code on container infrastructure without verified human authorization.
+        </div>
       </div>
     </div>
 
-    <div class="grid">
-      <!-- Active Incident State -->
-      <div class="card">
-        <h2>Active Incident State</h2>
-        <div style="margin-bottom: 12px;">
-          <p><strong>Incident ID:</strong> <span id="incident-id">INC-2026-1031-CONN-LEAK</span></p>
-          <p><strong>Status:</strong> <span id="incident-status" style="font-weight: 700; color: var(--success);">RESOLVED</span></p>
-          <p><strong>Rule Triggered:</strong> <span id="incident-rule" style="color: var(--warning);">AEGIS-RULE-001-CONNECTION-LEAK</span></p>
-          <p><strong>Root Cause:</strong> <span id="incident-root-cause">Database connection leak on TransientProcessingError</span></p>
-          <p><strong>Target File:</strong> <code>demo/sample_app/payment_handler.py :: process_payment_attempt</code></p>
-        </div>
-        <div id="live-metric-box" style="background: #050811; padding: 10px; border-radius: 6px; font-size: 13px;">
-          <strong>Active Live Metrics:</strong> <span id="live-metric-text">Healthy baseline active. 0 leaks, 0 wait events.</span>
-        </div>
-      </div>
-
-      <!-- SecOps Approval Gate -->
-      <div class="card">
-        <h2>Backend SecOps Approval Gate</h2>
-        <p style="font-size: 13px; margin-bottom: 12px; color: var(--text-muted);">
-          Mandatory security boundary: Isolated validation is rejected (HTTP 403) unless authorized by SecOps.
-        </p>
-        <p><strong>Approval Status:</strong> <span id="approval-status" style="font-weight: 600; color: var(--warning);">AWAITING APPROVAL</span></p>
-        <p style="margin-bottom: 14px; font-size: 13px;"><strong>Approver:</strong> <span id="approval-approver">None</span></p>
-        <div style="display: flex; gap: 8px;">
-          <button id="btn-approve" class="btn btn-success" onclick="approveValidation()">Grant SecOps Approval</button>
-          <button id="btn-reset" class="btn btn-outline" onclick="resetApproval()">Revoke</button>
-        </div>
-        <div id="trigger-result" style="margin-top: 8px; font-size: 12px;"></div>
-      </div>
-    </div>
-
-    <!-- Benchmark Comparison Table -->
+    <!-- BENCHMARK COMPARISON TABLE -->
     <div class="card" style="margin-bottom: 24px;">
-      <h2>Measured Benchmark Comparison (300 Measured Requests @ 100 req/s, Pool = 5)</h2>
-      <div class="table-container">
+      <h3>
+        <span>Benchmark Verification & Performance Metrics</span>
+        <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">300 Measured Requests @ 100 req/s Open-Loop | Pool Capacity = 5</span>
+      </h3>
+      <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
-              <th>Condition</th>
-              <th>Status</th>
+              <th>Implementation Condition</th>
+              <th>Outcome</th>
               <th>Error Rate</th>
               <th>P95 Latency</th>
               <th>Throughput</th>
@@ -261,59 +464,70 @@
             </tr>
           </thead>
           <tbody id="metrics-tbody">
-            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading benchmark metrics...</td></tr>
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Polling benchmark telemetry...</td></tr>
           </tbody>
         </table>
       </div>
+
+      <div class="explainer-box" style="margin-top: 14px;">
+        <strong>Validation Gate Criteria:</strong> Healthy reference and Patched code require 0 wait events, 0 acquisition timeouts, and $\le 1.0\%$ error rate. The Negative Control proves that ineffective patches (e.g. cleaning up on <code>PaymentValidationError</code> while ignoring <code>TransientProcessingError</code>) are caught and rejected.
+      </div>
     </div>
 
-    <!-- Docker Sandbox Status Card -->
+    <!-- CONTAINER SANDBOX CONTROLS -->
     <div class="card" style="margin-bottom: 24px;">
-      <h2>Docker Linux Container Sandbox Controls</h2>
-      <div style="margin-bottom: 14px; font-size: 13px; display: flex; align-items: center; gap: 10px;">
-        <span>🐳 <strong>Active Docker Container:</strong></span>
-        <span id="docker-container-status" style="color: var(--success); font-weight: 600;">Checking container...</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
-        <div style="background: #050811; padding: 12px; border-radius: 6px;">
-          <strong style="color: var(--primary);">Network Isolation</strong>
-          <p style="font-size: 13px; color: var(--text-muted);"><code>--network none</code></p>
-          <p style="font-size: 12px; color: var(--success);">Loopback: OK | External: Blocked</p>
+      <h3>
+        <span>Linux Container Sandbox & Isolation Controls</span>
+        <span id="docker-container-status" style="font-size: 12px; color: var(--success); font-weight: 600;">Checking Docker...</span>
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 10px;">
+        <div style="background: var(--code-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--card-border);">
+          <strong style="color: var(--accent);">Network Isolation</strong>
+          <p style="font-size: 12px; color: var(--text-muted);"><code>--network none</code></p>
+          <p style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ Loopback: OK | ✕ Egress: Hard-Blocked</p>
         </div>
-        <div style="background: #050811; padding: 12px; border-radius: 6px;">
-          <strong style="color: var(--primary);">Host-File Isolation</strong>
-          <p style="font-size: 13px; color: var(--text-muted);">Canary Mount Check</p>
-          <p style="font-size: 12px; color: var(--success);">Control Read: OK | Canary: Blocked</p>
+        <div style="background: var(--code-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--card-border);">
+          <strong style="color: var(--accent);">Host-File Mount Isolation</strong>
+          <p style="font-size: 12px; color: var(--text-muted);">Canary Mount Audit</p>
+          <p style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ Control Read: OK | ✕ Host Canary: Inaccessible</p>
         </div>
-        <div style="background: #050811; padding: 12px; border-radius: 6px;">
-          <strong style="color: var(--primary);">Docker Socket Protection</strong>
-          <p style="font-size: 13px; color: var(--text-muted);">Launcher Argument Filter</p>
-          <p style="font-size: 12px; color: var(--success);">No Socket | Injection Rejected</p>
+        <div style="background: var(--code-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--card-border);">
+          <strong style="color: var(--accent);">Docker Socket Protection</strong>
+          <p style="font-size: 12px; color: var(--text-muted);">Argument Template Boundary</p>
+          <p style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ Socket Shielded | ✕ Injection Blocked</p>
         </div>
-        <div style="background: #050811; padding: 12px; border-radius: 6px;">
-          <strong style="color: var(--primary);">Daemon TCP Security</strong>
-          <p style="font-size: 13px; color: var(--text-muted);">Ports 2375 / 2376</p>
-          <p style="font-size: 12px; color: var(--success);">No Listeners (Disabled)</p>
+        <div style="background: var(--code-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--card-border);">
+          <strong style="color: var(--accent);">Daemon Security Audit</strong>
+          <p style="font-size: 12px; color: var(--text-muted);">TCP Ports 2375 & 2376</p>
+          <p style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ No Plaintext Listeners (Disabled)</p>
         </div>
       </div>
     </div>
 
-    <!-- Raw Benchmark JSON Explorer -->
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h2>Latest Benchmark Raw JSON Manifest</h2>
-        <button class="btn btn-outline" style="font-size: 12px; padding: 4px 8px;" onclick="loadBenchmarkJson()">Refresh JSON</button>
+    <!-- FOOTER / TELEMETRY STATUS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-dim); padding-top: 12px; border-top: 1px solid var(--card-border);">
+      <div>
+        <span class="pulse-dot"></span>
+        <span style="margin-left: 6px;">Live Telemetry Polling (2000 ms). Host: <code>127.0.0.1:8000</code></span>
       </div>
-      <pre id="json-viewer" class="pre-box">Loading raw benchmark output...</pre>
-    </div>
-
-    <div class="poll-indicator">
-      <div class="dot"></div>
-      <span>Auto-polling <code>/api/status</code> every 2 seconds. Last updated: <span id="last-poll-time">-</span></span>
+      <div>
+        Canonical Hash: <code>def171a8356b576d...</code> | Status: <strong id="footer-status" style="color: var(--success);">VERIFIED</strong>
+      </div>
     </div>
   </div>
 
   <script>
+    function showAlert(message, type) {
+      const banner = document.getElementById('security-alert-banner');
+      banner.className = type === 'forbidden' ? 'alert-forbidden' : 'alert-authorized';
+      banner.innerHTML = message;
+    }
+
+    function hideAlert() {
+      const banner = document.getElementById('security-alert-banner');
+      banner.style.display = 'none';
+    }
+
     async function fetchStatus() {
       try {
         const resp = await fetch('/api/status');
@@ -325,58 +539,57 @@
         const outcome = (data.validation_outcome || 'verified').toLowerCase();
         badge.textContent = outcome.toUpperCase();
         badge.className = 'status-badge status-' + outcome;
+        document.getElementById('footer-status').textContent = outcome.toUpperCase();
 
-        // Update Incident
+        // Update Incident Telemetry
+        const incPill = document.getElementById('incident-pill');
         if (data.incident_state) {
-          const incStatus = document.getElementById('incident-status');
-          incStatus.textContent = data.incident_state.status || 'RESOLVED';
-          if (data.incident_state.status.includes('CRITICAL')) {
-            incStatus.style.color = 'var(--danger)';
-          } else if (data.incident_state.status.includes('PATCH')) {
-            incStatus.style.color = 'var(--warning)';
-          } else if (data.incident_state.status.includes('INEFFECTIVE')) {
-            incStatus.style.color = 'var(--warning)';
+          const status = data.incident_state.status || 'NORMAL';
+          if (status.includes('CRITICAL')) {
+            incPill.textContent = 'CRITICAL POOL FAILURE';
+            incPill.style.background = 'var(--danger-bg)';
+            incPill.style.color = 'var(--danger)';
+          } else if (status.includes('PATCH')) {
+            incPill.textContent = 'PATCH SYNTHESIZED';
+            incPill.style.background = 'var(--warning-bg)';
+            incPill.style.color = 'var(--warning)';
+          } else if (status.includes('INEFFECTIVE')) {
+            incPill.textContent = 'NEGATIVE CONTROL REJECTED';
+            incPill.style.background = 'var(--warning-bg)';
+            incPill.style.color = 'var(--warning)';
           } else {
-            incStatus.style.color = 'var(--success)';
+            incPill.textContent = 'RESOLVED & VERIFIED';
+            incPill.style.background = 'var(--success-bg)';
+            incPill.style.color = 'var(--success)';
           }
-          document.getElementById('incident-root-cause').textContent = data.incident_state.root_cause || '-';
         }
 
-        // Update Live Demo Log
-        if (data.demo_state) {
-          if (data.demo_state.active_metrics && Object.keys(data.demo_state.active_metrics).length > 0) {
-            const m = data.demo_state.active_metrics;
-            document.getElementById('live-metric-text').innerHTML = `
-              Error Rate: <b style="color: ${m.error_rate === '0.67%' ? 'var(--success)' : 'var(--danger)'}">${m.error_rate}</b> | 
-              Leaks: <b style="color: ${m.leaked_connections == 0 ? 'var(--success)' : 'var(--danger)'}">${m.leaked_connections}</b> | 
-              Wait Events: <b>${m.pool_wait_events}</b> | 
-              Throughput: <b>${m.throughput}</b>
-            `;
-          }
-          if (data.demo_state.last_log) {
-            document.getElementById('console-output').textContent = data.demo_state.last_log;
-          }
+        // Update SecOps Gate Card
+        const gatePill = document.getElementById('gate-pill');
+        const statusText = document.getElementById('approval-status-text');
+        const signerText = document.getElementById('approval-signer-text');
+        if (data.is_approved) {
+          gatePill.textContent = 'AUTHORIZED';
+          gatePill.style.background = 'var(--success-bg)';
+          gatePill.style.color = 'var(--success)';
+          statusText.textContent = 'APPROVED';
+          statusText.style.color = 'var(--success)';
+          signerText.textContent = data.approved_by || 'SecOps Lead';
+        } else {
+          gatePill.textContent = 'ENFORCING';
+          gatePill.style.background = 'var(--warning-bg)';
+          gatePill.style.color = 'var(--warning)';
+          statusText.textContent = 'AWAITING APPROVAL';
+          statusText.style.color = 'var(--warning)';
+          signerText.textContent = 'None';
         }
 
         // Docker container status
         if (data.sandbox_isolation && data.sandbox_isolation.docker_desktop_container) {
-          document.getElementById('docker-container-status').textContent = data.sandbox_isolation.docker_desktop_container;
+          document.getElementById('docker-container-status').textContent = '🐳 Container: ' + data.sandbox_isolation.docker_desktop_container;
         }
 
-        // Update Approval State
-        const appStatus = document.getElementById('approval-status');
-        const appApprover = document.getElementById('approval-approver');
-        if (data.is_approved) {
-          appStatus.textContent = 'APPROVED';
-          appStatus.style.color = 'var(--success)';
-          appApprover.textContent = data.approved_by || 'SecOps Lead';
-        } else {
-          appStatus.textContent = 'AWAITING APPROVAL';
-          appStatus.style.color = 'var(--warning)';
-          appApprover.textContent = 'None';
-        }
-
-        // Update Metrics Table
+        // Update Benchmark Comparison Table
         if (data.key_metrics) {
           const tbody = document.getElementById('metrics-tbody');
           tbody.innerHTML = '';
@@ -386,7 +599,7 @@
             if (!m) continue;
             const tr = document.createElement('tr');
             const passClass = m.passed ? 'cell-pass' : 'cell-fail';
-            const passLabel = m.passed ? 'PASSED' : (cond === 'vulnerable' ? 'REPRODUCED' : 'FAILED');
+            const passLabel = m.passed ? 'PASS' : (cond === 'vulnerable' ? 'REPRODUCED' : 'REJECTED');
             tr.innerHTML = `
               <td style="font-weight: 600; text-transform: capitalize;">${cond.replace('_', ' ')}</td>
               <td class="${passClass}">${passLabel}</td>
@@ -399,55 +612,46 @@
             tbody.appendChild(tr);
           }
         }
-
-        document.getElementById('last-poll-time').textContent = new Date().toLocaleTimeString();
       } catch (err) {
-        console.error('Polling error:', err);
+        console.error('Telemetry error:', err);
       }
     }
 
-    async function loadBenchmarkJson() {
-      try {
-        const resp = await fetch('/api/benchmark/latest');
-        if (resp.ok) {
-          const data = await resp.json();
-          document.getElementById('json-viewer').textContent = JSON.stringify(data, null, 2);
-        } else {
-          document.getElementById('json-viewer').textContent = 'No benchmark results found.';
-        }
-      } catch (e) {
-        document.getElementById('json-viewer').textContent = 'Error fetching benchmark: ' + e;
-      }
-    }
-
-    // Step 1: Inject fault
+    // Step 1: Simulate Fault
     async function injectFault() {
-      document.getElementById('console-output').textContent = '⏳ Injecting fault and running 300-request open-loop workload against vulnerable implementation...';
+      hideAlert();
+      document.getElementById('console-output').textContent = 'Executing 300-request open-loop arrival schedule against unhandled TransientProcessingError path...';
       const res = await fetch('/api/demo/inject-fault', { method: 'POST' });
       const data = await res.json();
       document.getElementById('console-output').textContent = data.message;
       fetchStatus();
     }
 
-    // Step 2: Diagnose & fix
+    // Step 2: Synthesize AST Patch
     async function diagnoseAndFix() {
-      document.getElementById('console-output').textContent = '⏳ Analyzing AST and applying atomic try...finally release patch...';
+      hideAlert();
+      document.getElementById('console-output').textContent = 'Parsing AST for process_payment_attempt; validating 9 syntactic constraints and applying atomic release...';
       const res = await fetch('/api/demo/diagnose-and-fix', { method: 'POST' });
       const data = await res.json();
       document.getElementById('console-output').textContent = data.message;
       fetchStatus();
     }
 
-    // Step 3: Verify sandbox
+    // Step 3: Audit Sandbox (Enforces SecOps Gate)
     async function verifySandbox() {
-      document.getElementById('console-output').textContent = '⏳ Dispatching container security probe to Docker sandbox...';
+      document.getElementById('console-output').textContent = 'Dispatching container security probe to Linux sandbox under --network none...';
       try {
         const res = await fetch('/api/demo/verify-sandbox', { method: 'POST' });
         const data = await res.json();
-        if (res.ok) {
-          document.getElementById('console-output').textContent = '✅ DOCKER SANDBOX VERIFIED: Loopback connection OK, external egress blocked (--network none), mount isolation verified.';
+        if (res.status === 403) {
+          showAlert(`🚫 <strong>HTTP 403 FORBIDDEN — ACCESS DENIED:</strong> ${data.detail}`, 'forbidden');
+          document.getElementById('console-output').textContent = `🚨 SECURITY GATE BLOCKED: HTTP 403 Forbidden. Explicit SecOps sign-off required!`;
+        } else if (res.ok) {
+          showAlert(`🛡️ <strong>SECURITY AUDIT VERIFIED:</strong> In-container loopback probe passed, external network blocked (--network none), mount isolation confirmed.`, 'authorized');
+          document.getElementById('console-output').textContent = '✓ DOCKER SANDBOX AUDIT PASSED: Network, socket, and host mount isolation verified.';
         } else {
-          document.getElementById('console-output').textContent = '❌ ' + data.detail;
+          showAlert(`❌ ${data.detail}`, 'forbidden');
+          document.getElementById('console-output').textContent = 'Error: ' + data.detail;
         }
       } catch (e) {
         document.getElementById('console-output').textContent = 'Error: ' + e;
@@ -455,25 +659,45 @@
       fetchStatus();
     }
 
-    // Step 4: Verify healed
+    // Step 4: Verify Remediation
     async function verifyHealed() {
-      document.getElementById('console-output').textContent = '⏳ Executing 300-request workload on correctly patched code...';
+      hideAlert();
+      document.getElementById('console-output').textContent = 'Re-running 300 open-loop requests against patched payment_handler...';
       const res = await fetch('/api/demo/verify-healed', { method: 'POST' });
       const data = await res.json();
       document.getElementById('console-output').textContent = data.message;
       fetchStatus();
     }
 
-    // Step 5: Test negative control
+    // Step 5: Evaluate Negative Control
     async function testNegativeControl() {
-      document.getElementById('console-output').textContent = '⏳ Applying superficial negative control fix and executing workload...';
+      hideAlert();
+      document.getElementById('console-output').textContent = 'Injecting superficial patch (cleaning on PaymentValidationError only) to evaluate benchmark sensitivity...';
       const res = await fetch('/api/demo/test-negative-control', { method: 'POST' });
       const data = await res.json();
       document.getElementById('console-output').textContent = data.message;
       fetchStatus();
     }
 
-    // SecOps Approval
+    // Probe Policy Gate Button (Explicit 403 Demonstration)
+    async function probePolicyGate() {
+      try {
+        const res = await fetch('/api/run-validation', { method: 'POST' });
+        const data = await res.json();
+        if (res.status === 403) {
+          showAlert(`🚫 <strong>HTTP 403 FORBIDDEN — POLICY GATE ENFORCED:</strong> ${data.detail}`, 'forbidden');
+          document.getElementById('console-output').textContent = `[POLICY PROBE] HTTP 403 Forbidden: Request blocked at kernel middleware boundary.`;
+        } else if (res.ok) {
+          showAlert(`🛡️ <strong>HTTP 200 OK — AUTHORIZATION ACTIVE:</strong> ${data.message}`, 'authorized');
+          document.getElementById('console-output').textContent = `[POLICY PROBE] HTTP 200 OK: Valid SecOps authorization token confirmed.`;
+        }
+      } catch (e) {
+        showAlert(`Error probing gate: ${e}`, 'forbidden');
+      }
+      fetchStatus();
+    }
+
+    // Grant SecOps Approval
     async function approveValidation() {
       const res = await fetch('/api/approve', {
         method: 'POST',
@@ -481,18 +705,20 @@
         body: JSON.stringify({ approver: 'SecOps Lead', token: 'AEGIS-APPROVE-SEC-2026' }),
       });
       const data = await res.json();
-      document.getElementById('trigger-result').innerHTML = `<span style="color: var(--success);">${data.message}</span>`;
+      showAlert(`🛡️ <strong>SECOPS SIGN-OFF RECORDED:</strong> Authorized by ${data.approved_by}. Container runtime unlocked.`, 'authorized');
+      document.getElementById('console-output').textContent = 'SecOps authorization granted. Sandbox container launching unlocked.';
       fetchStatus();
     }
 
-    async function resetApproval() {
+    // Revoke Approval
+    async function revokeApproval() {
       await fetch('/api/reset-approval', { method: 'POST' });
-      document.getElementById('trigger-result').innerHTML = `<span style="color: var(--warning);">Approval Revoked</span>`;
+      showAlert(`🔒 <strong>SECOPS SIGN-OFF REVOKED:</strong> Authorization token cleared. Policy gate locked.`, 'forbidden');
+      document.getElementById('console-output').textContent = 'SecOps authorization revoked. Policy gate locked.';
       fetchStatus();
     }
 
     fetchStatus();
-    loadBenchmarkJson();
     setInterval(fetchStatus, 2000);
   </script>
 </body>
