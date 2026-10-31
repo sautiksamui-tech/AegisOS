@@ -3,249 +3,238 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AegisOS — Cascading Failure Simulation & Autonomous Recovery</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>AegisOS — Autonomous Runtime Resilience</title>
   <style>
     :root {
-      --bg: #070b14;
-      --surface: #0f172a;
-      --surface-border: #1e293b;
+      --bg: #090d16;
+      --card: #0f172a;
+      --border: #1e293b;
       --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --muted: #64748b;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.1);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.12);
       --accent: #38bdf8;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      padding: 24px 20px;
-      line-height: 1.5;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      padding: 32px 24px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      -webkit-font-smoothing: antialiased;
     }
-    .app-container { max-width: 1140px; margin: 0 auto; }
+    .wrapper {
+      width: 100%;
+      max-width: 1080px;
+    }
 
-    /* Header */
+    /* Minimalist Executive Header */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--surface-border);
+      margin-bottom: 28px;
     }
-    .brand h1 { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
-    .brand p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-    .status-badge {
-      font-size: 12px; font-weight: 800; padding: 6px 16px; border-radius: 9999px;
-      text-transform: uppercase; letter-spacing: 0.06em; display: inline-flex; align-items: center; gap: 8px;
-    }
-    .status-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-    .badge-verified { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
-    .badge-outage { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-    .badge-healing { background: rgba(56, 189, 248, 0.2); color: var(--accent); border: 1px solid var(--accent); }
-
-    /* The Main Simulation Canvas */
-    .sim-card {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    }
-
-    /* Big Action Buttons */
-    .controls-bar {
+    .brand {
       display: flex;
-      gap: 14px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
     }
-    .hero-btn {
-      flex: 1;
-      min-width: 260px;
-      padding: 14px 20px;
+    .logo-mark {
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
-      font-size: 15px;
-      font-weight: 800;
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      color: #fff;
+    }
+    .brand h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+    .brand span {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 6px;
+      font-weight: 400;
+    }
+    .system-pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.02em;
+      transition: all 0.3s;
+    }
+    .pill-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .pill-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    /* The Central Hero Controller: 3 Clean States */
+    .hero-controller {
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .mode-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 12px 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      border: 1px solid transparent;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
       transition: all 0.2s ease;
     }
-    .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    .mode-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.03); }
+    .mode-tab.tab-active-outage {
+      background: var(--red-bg);
+      color: #fca5a5;
+      border-color: var(--red);
+    }
+    .mode-tab.tab-active-aegis {
+      background: var(--green-bg);
+      color: #86efac;
+      border-color: var(--green);
+    }
+    .mode-tab.tab-active-test {
+      background: var(--amber-bg);
+      color: #fde68a;
+      border-color: var(--amber);
+    }
 
-    .btn-outage { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--danger); }
-    .btn-outage:hover { background: var(--danger); color: #fff; }
-
-    .btn-heal { background: rgba(16, 185, 129, 0.2); color: #86efac; border-color: var(--success); }
-    .btn-heal:hover { background: var(--success); color: #000; }
-
-    .btn-neg { background: rgba(245, 158, 11, 0.15); color: #fde68a; border-color: var(--warning); flex: 0.7; }
-    .btn-neg:hover { background: var(--warning); color: #000; }
-
-    /* 5 Database Connection Cylinders */
-    .valves-grid {
+    /* Main Dual Pane Layout */
+    .grid-duo {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 768px) { .valves-grid { grid-template-columns: repeat(2, 1fr); } }
-
-    .valve-cylinder {
-      background: #070c18;
-      border: 2px solid var(--surface-border);
-      border-radius: 10px;
-      padding: 16px 12px;
-      text-align: center;
-      transition: all 0.25s ease;
-      position: relative;
-    }
-    .valve-cylinder .valve-num { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-    .valve-icon-circle {
-      width: 48px; height: 48px; margin: 0 auto 10px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; transition: all 0.25s;
-    }
-    .valve-status-text { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; }
-
-    /* States */
-    .cyl-healthy { border-color: rgba(16, 185, 129, 0.4); }
-    .cyl-healthy .valve-icon-circle { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-    .cyl-healthy .valve-status-text { color: var(--success); }
-
-    .cyl-processing { border-color: var(--accent); transform: scale(1.04); }
-    .cyl-processing .valve-icon-circle { background: rgba(56, 189, 248, 0.25); color: var(--accent); }
-    .cyl-processing .valve-status-text { color: var(--accent); }
-
-    .cyl-leaked { border-color: var(--danger); background: rgba(239, 68, 68, 0.12); box-shadow: 0 0 16px rgba(239, 68, 68, 0.35); }
-    .cyl-leaked .valve-icon-circle { background: var(--danger); color: #fff; animation: pulseRed 1.2s infinite; }
-    .cyl-leaked .valve-status-text { color: #fca5a5; }
-
-    @keyframes pulseRed { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-    /* Queue Buffer Bar */
-    .queue-section {
-      background: #030712;
-      border: 1px solid var(--surface-border);
-      border-radius: 8px;
-      padding: 14px 18px;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 20px;
       margin-bottom: 20px;
     }
-    .queue-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
-    .queue-track { height: 12px; background: #1e293b; border-radius: 9999px; overflow: hidden; }
-    .queue-fill { height: 100%; width: 5%; background: var(--success); transition: width 0.4s ease, background 0.3s; }
+    @media (max-width: 860px) { .grid-duo { grid-template-columns: 1fr; } }
 
-    /* Live Telemetry KPI Cards */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
     }
-    @media (max-width: 768px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
-
-    .kpi-card {
-      background: #030712;
-      border: 1px solid var(--surface-border);
-      border-radius: 8px;
-      padding: 12px 16px;
-    }
-    .kpi-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
-    .kpi-val { font-size: 20px; font-weight: 800; color: #fff; }
-
-    /* Live Action Banner Alert */
-    #live-alert-banner {
-      margin-top: 18px;
-      padding: 12px 18px;
-      border-radius: 8px;
+    .card-title {
       font-size: 13px;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .alert-green { background: rgba(16, 185, 129, 0.12); color: #86efac; border: 1px solid var(--success); }
-    .alert-red { background: rgba(239, 68, 68, 0.16); color: #fca5a5; border: 1px solid var(--danger); animation: alertPulse 2s infinite; }
-    .alert-yellow { background: rgba(245, 158, 11, 0.16); color: #fde68a; border: 1px solid var(--warning); }
-    @keyframes alertPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-    /* Dynamic Live Code Inspector */
-    .code-inspector-section {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 22px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    }
-    .inspector-header {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-      gap: 10px;
     }
-    .inspector-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .runtime-badge {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-code-vulnerable { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger); }
-    .badge-code-patched { background: rgba(16, 185, 129, 0.2); color: #86efac; border: 1px solid var(--success); }
-    .badge-code-neg { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid var(--warning); }
 
-    pre.dynamic-code-viewer {
+    /* Left Pane: 5 Connection Slots */
+    .pool-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .slot-row {
       background: #030712;
-      border: 1px solid var(--surface-border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      transition: all 0.25s ease;
+    }
+    .slot-id { font-weight: 600; color: #94a3b8; }
+    .slot-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .slot-healthy { border-color: rgba(16, 185, 129, 0.3); }
+    .slot-healthy .slot-badge { background: var(--green-bg); color: var(--green); }
+    .slot-leaked { border-color: var(--red); background: rgba(239, 68, 68, 0.08); }
+    .slot-leaked .slot-badge { background: var(--red); color: #fff; }
+
+    /* Key Numbers (Only 3, High-Impact) */
+    .kpi-triad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .kpi-col { text-align: center; }
+    .kpi-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--muted); }
+    .kpi-num { font-size: 18px; font-weight: 800; color: #fff; margin-top: 2px; transition: color 0.25s; }
+
+    /* Right Pane: Code Inspection */
+    .code-box {
+      background: #030712;
+      border: 1px solid var(--border);
       border-radius: 8px;
       padding: 16px 18px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
-      line-height: 1.65;
+      line-height: 1.7;
+      color: #cbd5e1;
       white-space: pre;
       overflow-x: auto;
-      margin: 0;
-      color: #e2e8f0;
-      transition: all 0.3s ease;
+      margin-bottom: 14px;
+      min-height: 170px;
     }
-    .code-highlight-red { color: #fca5a5; background: rgba(239, 68, 68, 0.2); display: block; border-left: 4px solid var(--danger); padding-left: 8px; margin: 2px -18px; }
-    .code-highlight-green { color: #86efac; background: rgba(16, 185, 129, 0.2); display: block; border-left: 4px solid var(--success); padding-left: 8px; margin: 2px -18px; }
-    .code-highlight-yellow { color: #fde68a; background: rgba(245, 158, 11, 0.2); display: block; border-left: 4px solid var(--warning); padding-left: 8px; margin: 2px -18px; }
+    .code-hl-red { color: #fca5a5; background: rgba(239, 68, 68, 0.18); display: block; margin: 2px -18px; padding-left: 14px; border-left: 3px solid var(--red); }
+    .code-hl-green { color: #86efac; background: rgba(16, 185, 129, 0.18); display: block; margin: 2px -18px; padding-left: 14px; border-left: 3px solid var(--green); }
+    .code-hl-amber { color: #fde68a; background: rgba(245, 158, 11, 0.18); display: block; margin: 2px -18px; padding-left: 14px; border-left: 3px solid var(--amber); }
 
-    .code-explainer {
-      margin-top: 12px;
-      padding: 10px 14px;
-      background: rgba(3, 7, 18, 0.6);
+    .summary-takeaway {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--muted);
       border-left: 3px solid var(--accent);
-      border-radius: 0 6px 6px 0;
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
+      padding-left: 12px;
     }
-    .code-explainer strong { color: var(--text); }
+    .summary-takeaway strong { color: var(--text); }
 
-    /* SecOps Gate Strip */
-    .secops-strip {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
+    /* Bottom Minimal SecOps Gate */
+    .secops-bar {
+      background: #030712;
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: 14px 20px;
       display: flex;
@@ -255,382 +244,279 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .secops-btn {
-      padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; border: 1px solid transparent;
+    .secops-status { display: flex; align-items: center; gap: 10px; }
+    .secops-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-approved { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot-rejected { background: var(--red); box-shadow: 0 0 8px var(--red); }
+    .secops-actions { display: flex; gap: 8px; }
+    .btn-sm {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      transition: all 0.15s;
     }
-    .secops-approve { background: var(--success); color: #000; }
-    .secops-revoke { background: transparent; border-color: var(--danger); color: #fca5a5; }
-    .secops-test { background: transparent; border-color: var(--accent); color: var(--accent); }
+    .btn-sm:hover { background: rgba(255, 255, 255, 0.05); }
+    .btn-sm-danger { color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+    .btn-sm-danger:hover { background: var(--red-bg); }
+    .btn-sm-primary { background: var(--green); color: #000; border: none; font-weight: 700; }
+    .btn-sm-primary:hover { filter: brightness(1.1); }
   </style>
 </head>
 <body>
-  <div class="app-container">
+  <div class="wrapper">
+    <!-- Header -->
     <header>
       <div class="brand">
-        <h1>AegisOS — Cascading Failure Simulation & Autonomous Recovery</h1>
-        <p>100 req/s Open-Loop Arrival • 5 Database Connection Valves • Formal AST Remediation</p>
+        <div class="logo-mark">🛡️</div>
+        <div>
+          <h1>AegisOS <span>• Autonomous Runtime Resilience</span></h1>
+        </div>
       </div>
       <div>
-        <span id="header-badge" class="status-badge badge-verified">SYSTEM HEALTHY</span>
+        <span id="system-pill" class="system-pill pill-green">● SYSTEM HEALTHY</span>
       </div>
     </header>
 
-    <!-- LIVE SIMULATOR STAGE -->
-    <div class="sim-card">
-      <!-- High-Impact Action Buttons -->
-      <div class="controls-bar">
-        <button class="hero-btn btn-outage" onclick="triggerOutageSimulation()">
-          <span>💥 Simulate Cascading Failure</span>
-        </button>
-        <button class="hero-btn btn-heal" onclick="triggerHealingSimulation()">
-          <span>🛡️ Trigger Autonomous Repair</span>
-        </button>
-        <button class="hero-btn btn-neg" onclick="triggerNegativeControlSimulation()">
-          <span>⚠️ Test Ineffective Fix</span>
-        </button>
-      </div>
-
-      <!-- 5 Visual Database Connection Valves -->
-      <div class="valves-grid">
-        <div id="cyl-0" class="valve-cylinder cyl-healthy">
-          <div class="valve-num">Connection #1</div>
-          <div class="valve-icon-circle">🚰</div>
-          <div class="valve-status-text">RELEASED ✓</div>
-        </div>
-        <div id="cyl-1" class="valve-cylinder cyl-healthy">
-          <div class="valve-num">Connection #2</div>
-          <div class="valve-icon-circle">🚰</div>
-          <div class="valve-status-text">RELEASED ✓</div>
-        </div>
-        <div id="cyl-2" class="valve-cylinder cyl-healthy">
-          <div class="valve-num">Connection #3</div>
-          <div class="valve-icon-circle">🚰</div>
-          <div class="valve-status-text">RELEASED ✓</div>
-        </div>
-        <div id="cyl-3" class="valve-cylinder cyl-healthy">
-          <div class="valve-num">Connection #4</div>
-          <div class="valve-icon-circle">🚰</div>
-          <div class="valve-status-text">RELEASED ✓</div>
-        </div>
-        <div id="cyl-4" class="valve-cylinder cyl-healthy">
-          <div class="valve-num">Connection #5</div>
-          <div class="valve-icon-circle">🚰</div>
-          <div class="valve-status-text">RELEASED ✓</div>
-        </div>
-      </div>
-
-      <!-- Queue Backlog Meter -->
-      <div class="queue-section">
-        <div class="queue-header">
-          <span>Worker Request Queue Backlog:</span>
-          <span id="queue-count-text" style="color: var(--success);">0 / 20 In-Flight (Idle)</span>
-        </div>
-        <div class="queue-track">
-          <div id="queue-fill-bar" class="queue-fill"></div>
-        </div>
-      </div>
-
-      <!-- Live Telemetry KPI Meters -->
-      <div class="kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-label">Incoming Traffic</div>
-          <div class="kpi-val">100 req/s</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Available Pool</div>
-          <div id="kpi-pool" class="kpi-val" style="color: var(--success);">5 / 5</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Error Rate</div>
-          <div id="kpi-error" class="kpi-val" style="color: var(--success);">0.67%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">P95 Latency</div>
-          <div id="kpi-latency" class="kpi-val" style="color: var(--success);">41 ms</div>
-        </div>
-      </div>
-
-      <!-- Live Notification Banner -->
-      <div id="live-alert-banner" class="alert-green">
-        <span>✅ <strong>AegisOS Verified:</strong> 5/5 pool connections healthy. Little's Law demand balanced (2.22 avg). 0 queue timeouts.</span>
-      </div>
+    <!-- The 3 Clean High-Impact Scenarios -->
+    <div class="hero-controller">
+      <button id="tab-outage" class="mode-tab" onclick="applyMode('outage')">
+        <span>💥 1. Production Outage</span>
+      </button>
+      <button id="tab-aegis" class="mode-tab tab-active-aegis" onclick="applyMode('aegis')">
+        <span>🛡️ 2. Aegis Protected</span>
+      </button>
+      <button id="tab-test" class="mode-tab" onclick="applyMode('test')">
+        <span>🧪 3. LLM Hallucination Test</span>
+      </button>
     </div>
 
-    <!-- DYNAMIC LIVE RUNTIME CODE INSPECTOR -->
-    <div class="code-inspector-section">
-      <div class="inspector-header">
-        <div class="inspector-title">
-          <span>📄 Live Runtime Code Inspector:</span>
-          <code>demo/sample_app/payment_handler.py :: process_payment_attempt</code>
+    <!-- Main Grid: Left = Infrastructure, Right = Code & Guarantee -->
+    <div class="grid-duo">
+      <!-- Left: Database Connection Pool -->
+      <div class="card">
+        <div class="card-title">
+          <span>Database Pool (5 Connections)</span>
+          <span id="pool-count-label" style="color: var(--green);">5 / 5 Healthy</span>
         </div>
-        <span id="code-runtime-badge" class="runtime-badge badge-code-patched">AEGISOS HEALED (ACTIVE IN RUNTIME)</span>
+
+        <div class="pool-slots">
+          <div id="slot-0" class="slot-row slot-healthy">
+            <span class="slot-id">Connection Slot #1</span>
+            <span class="slot-badge">RECYCLED ✓</span>
+          </div>
+          <div id="slot-1" class="slot-row slot-healthy">
+            <span class="slot-id">Connection Slot #2</span>
+            <span class="slot-badge">RECYCLED ✓</span>
+          </div>
+          <div id="slot-2" class="slot-row slot-healthy">
+            <span class="slot-id">Connection Slot #3</span>
+            <span class="slot-badge">RECYCLED ✓</span>
+          </div>
+          <div id="slot-3" class="slot-row slot-healthy">
+            <span class="slot-id">Connection Slot #4</span>
+            <span class="slot-badge">RECYCLED ✓</span>
+          </div>
+          <div id="slot-4" class="slot-row slot-healthy">
+            <span class="slot-id">Connection Slot #5</span>
+            <span class="slot-badge">RECYCLED ✓</span>
+          </div>
+        </div>
+
+        <div class="kpi-triad">
+          <div class="kpi-col">
+            <div class="kpi-label">Error Rate</div>
+            <div id="kpi-error" class="kpi-num" style="color: var(--green);">0.67%</div>
+          </div>
+          <div class="kpi-col">
+            <div class="kpi-label">P95 Latency</div>
+            <div id="kpi-latency" class="kpi-num" style="color: var(--green);">41 ms</div>
+          </div>
+          <div class="kpi-col">
+            <div class="kpi-label">Throughput</div>
+            <div id="kpi-tps" class="kpi-num" style="color: var(--green);">99.3 req/s</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Live Code Block (Muted & Dynamically Updates) -->
-      <pre id="live-code-viewer" class="dynamic-code-viewer">def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+      <!-- Right: Target Code & Verification -->
+      <div class="card">
+        <div class="card-title">
+          <span>Target Runtime Code</span>
+          <code id="file-label" style="font-size: 11px; text-transform: none; color: var(--muted);">payment_handler.py</code>
+        </div>
+
+        <div id="code-box" class="code-box">def process_payment_attempt(pool, remaining_deadline_ms, op):
     conn = pool.acquire(timeout_ms=remaining_deadline_ms)
-<span class="code-highlight-green">+   try:
-+       return operation_fn(conn)
+<span class="code-hl-green">+   try:
++       return op(conn)
 +   finally:
-+       pool.release(conn)  # 🛡️ GUARANTEED RELEASE: Always executed unconditionally!</span></pre>
++       pool.release(conn)   # 🛡️ Always returned unconditionally</span></div>
 
-      <div id="live-code-explainer" class="code-explainer">
-        <strong>Formal AST Guarantee:</strong> Python's <code>try...finally</code> construct guarantees connection recycling across all success, error, and timeout paths. 0 connection leaks mathematically guaranteed.
+        <div id="summary-takeaway" class="summary-takeaway">
+          <strong>AegisOS AST Guarantee:</strong> Python's <code>try...finally</code> ensures zero leaked connections across 100% of exception branches. Verified safe inside isolated container.
+        </div>
       </div>
     </div>
 
-    <!-- SECOPS ZERO-TRUST INFRASTRUCTURE GATE -->
-    <div class="secops-strip">
-      <div>
-        <strong>SecOps Zero-Trust Gate:</strong>
-        <span id="gate-badge-text" style="margin-left: 8px; font-weight: 800; color: var(--success);">APPROVED (SecOps Lead)</span>
-        <span style="color: var(--text-muted); margin-left: 6px;">— Blocks unverified agent execution with HTTP 403</span>
+    <!-- SecOps Zero-Trust Boundary Bar -->
+    <div class="secops-bar">
+      <div class="secops-status">
+        <div id="secops-dot" class="secops-dot dot-approved"></div>
+        <div>
+          <strong id="secops-title">SecOps Policy Gate: Approved</strong>
+          <span style="color: var(--muted); margin-left: 6px;">— Blocks unauthorized agent execution with HTTP 403</span>
+        </div>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <button class="secops-btn secops-approve" onclick="approveSecOps()">Grant Sign-Off</button>
-        <button class="secops-btn secops-revoke" onclick="revokeSecOps()">Revoke (Test 403)</button>
-        <button class="secops-btn secops-test" onclick="probePolicy403()">Probe Policy Gate</button>
+      <div class="secops-actions">
+        <button class="btn-sm btn-sm-danger" onclick="revokeSecOps()">Revoke (Test 403)</button>
+        <button class="btn-sm" onclick="probePolicy403()">Probe Gate</button>
+        <button class="btn-sm btn-sm-primary" onclick="approveSecOps()">Grant Sign-Off</button>
       </div>
     </div>
   </div>
 
   <script>
-    let isSimulationRunning = false;
-
-    // Helper: Sleep
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    // Set Valve Visual State
-    function updateValve(idx, state, text, icon) {
-      const el = document.getElementById(`cyl-${idx}`);
-      el.className = `valve-cylinder ${state}`;
-      el.querySelector('.valve-status-text').textContent = text;
-      el.querySelector('.valve-icon-circle').textContent = icon;
+    function updateSlot(idx, isLeaked) {
+      const el = document.getElementById(`slot-${idx}`);
+      if (!el) return;
+      if (isLeaked) {
+        el.className = 'slot-row slot-leaked';
+        el.querySelector('.slot-badge').textContent = 'LEAKED ⚠️';
+      } else {
+        el.className = 'slot-row slot-healthy';
+        el.querySelector('.slot-badge').textContent = 'RECYCLED ✓';
+      }
     }
 
-    // Dynamic Code Display Update
-    function updateCodeDisplay(mode) {
-      const badge = document.getElementById('code-runtime-badge');
-      const viewer = document.getElementById('live-code-viewer');
-      const explainer = document.getElementById('live-code-explainer');
+    function setActiveTab(name) {
+      document.getElementById('tab-outage').className = 'mode-tab' + (name === 'outage' ? ' tab-active-outage' : '');
+      document.getElementById('tab-aegis').className = 'mode-tab' + (name === 'aegis' ? ' tab-active-aegis' : '');
+      document.getElementById('tab-test').className = 'mode-tab' + (name === 'test' ? ' tab-active-test' : '');
+    }
 
-      if (mode === 'vulnerable') {
-        badge.className = 'runtime-badge badge-code-vulnerable';
-        badge.textContent = '❌ VULNERABLE RUNTIME ACTIVE (UNHANDLED LEAK)';
+    async function applyMode(mode) {
+      setActiveTab(mode);
+      const pill = document.getElementById('system-pill');
+      const poolCount = document.getElementById('pool-count-label');
+      const err = document.getElementById('kpi-error');
+      const lat = document.getElementById('kpi-latency');
+      const tps = document.getElementById('kpi-tps');
+      const code = document.getElementById('code-box');
+      const takeaway = document.getElementById('summary-takeaway');
 
-        viewer.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+      if (mode === 'outage') {
+        pill.className = 'system-pill pill-red';
+        pill.textContent = '● CASCADING OUTAGE (86.3%)';
+        poolCount.textContent = '0 / 5 Starved';
+        poolCount.style.color = 'var(--red)';
+
+        // Animate leaks
+        for (let i = 0; i < 5; i++) {
+          await sleep(80);
+          updateSlot(i, true);
+        }
+
+        err.textContent = '86.33%'; err.style.color = 'var(--red)';
+        lat.textContent = '2,000 ms'; lat.style.color = 'var(--red)';
+        tps.textContent = '8.2 req/s'; tps.style.color = 'var(--red)';
+
+        code.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, op):
     conn = pool.acquire(timeout_ms=remaining_deadline_ms)
-    result = operation_fn(conn)  # 💥 10% injected TransientProcessingError!
-<span class="code-highlight-red">-   pool.release(conn)           # ⚠️ SKIPPED! When exception fires, release is bypassed!</span>
+    result = op(conn)       # 💥 10% transient exception fires here
+<span class="code-hl-red">-   pool.release(conn)      # ❌ SKIPPED! Connection dropped forever</span>
     return result`;
 
-        explainer.innerHTML = `<strong>The Defect in Memory:</strong> <code>pool.release(conn)</code> is only reached on normal return. When <code>TransientProcessingError</code> is thrown, the function aborts immediately, leaving the connection checked out forever. In 0.45s, all 5 connections leak.`;
-      } else if (mode === 'patched') {
-        badge.className = 'runtime-badge badge-code-patched';
-        badge.textContent = '✅ AEGISOS HEALED (ACTIVE IN RUNTIME)';
+        takeaway.innerHTML = `<strong>The Root Cause:</strong> <code>pool.release()</code> is outside protected flow. Every transient error leaks a connection. At 100 req/s, 5 connections are starved in 0.45s, locking the service into 86% timeouts.`;
 
-        viewer.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+        fetch('/api/demo/inject-fault', { method: 'POST' }).catch(() => {});
+      } else if (mode === 'aegis') {
+        pill.className = 'system-pill pill-green';
+        pill.textContent = '● AEGISOS PROTECTED (0.67%)';
+        poolCount.textContent = '5 / 5 Healthy';
+        poolCount.style.color = 'var(--green)';
+
+        for (let i = 0; i < 5; i++) {
+          updateSlot(i, false);
+        }
+
+        err.textContent = '0.67%'; err.style.color = 'var(--green)';
+        lat.textContent = '41 ms'; lat.style.color = 'var(--green)';
+        tps.textContent = '99.3 req/s'; tps.style.color = 'var(--green)';
+
+        code.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, op):
     conn = pool.acquire(timeout_ms=remaining_deadline_ms)
-<span class="code-highlight-green">+   try:
-+       return operation_fn(conn)
+<span class="code-hl-green">+   try:
++       return op(conn)
 +   finally:
-+       pool.release(conn)       # 🛡️ GUARANTEED RELEASE: Always executed unconditionally!</span>`;
++       pool.release(conn)   # 🛡️ Always returned unconditionally</span>`;
 
-        explainer.innerHTML = `<strong>Formal AST Guarantee:</strong> Python's <code>try...finally</code> construct guarantees connection recycling across all success, error, and timeout paths. 0 connection leaks mathematically guaranteed. 9 AST guardrails verified.`;
-      } else if (mode === 'negative_control') {
-        badge.className = 'runtime-badge badge-code-neg';
-        badge.textContent = '⚠️ NEGATIVE CONTROL ACTIVE (SUPERFICIAL REPAIR)';
+        takeaway.innerHTML = `<strong>AegisOS AST Guarantee:</strong> Python's <code>try...finally</code> ensures zero leaked connections across 100% of exception branches. Verified safe inside isolated container.`;
 
-        viewer.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, operation_fn):
+        fetch('/api/demo/verify-healed', { method: 'POST' }).catch(() => {});
+      } else if (mode === 'test') {
+        pill.className = 'system-pill pill-amber';
+        pill.textContent = '● REJECTED (98.3% FAKE FIX)';
+        poolCount.textContent = '0 / 5 Starved';
+        poolCount.style.color = 'var(--amber)';
+
+        for (let i = 0; i < 5; i++) {
+          updateSlot(i, true);
+        }
+
+        err.textContent = '98.33%'; err.style.color = 'var(--amber)';
+        lat.textContent = '2,000 ms'; lat.style.color = 'var(--amber)';
+        tps.textContent = '3.4 req/s'; tps.style.color = 'var(--amber)';
+
+        code.innerHTML = `def process_payment_attempt(pool, remaining_deadline_ms, op):
     conn = pool.acquire(timeout_ms=remaining_deadline_ms)
     try:
-        return operation_fn(conn)
-<span class="code-highlight-yellow">    except PaymentValidationError:   # ⚠️ Incomplete cleanup! Only catches PaymentValidationError!
+        return op(conn)
+<span class="code-hl-amber">    except PaymentValidationError:   # ⚠️ Incomplete: misses TransientProcessingError!
         pool.release(conn)
         raise</span>
     else:
-        pool.release(conn)
-    # 💥 Injected TransientProcessingError remains UNHANDLED and LEAKS!`;
+        pool.release(conn)`;
 
-        explainer.innerHTML = `<strong>Why the Negative Control Fails:</strong> The patch looks plausible, but only handles <code>PaymentValidationError</code> while leaving the injected <code>TransientProcessingError</code> unhandled! All 5 connections leak, failing with 98.33% errors. This proves AegisOS detects and rejects fake repairs.`;
+        takeaway.innerHTML = `<strong>Why LLM Hallucinations Fail:</strong> The superficial patch looks plausible, but only catches one exception type. AegisOS benchmark testing immediately rejects it with 98.3% failure.`;
+
+        fetch('/api/demo/test-negative-control', { method: 'POST' }).catch(() => {});
       }
     }
 
-    // 1. SIMULATE CASCADING OUTAGE
-    async function triggerOutageSimulation() {
-      if (isSimulationRunning) return;
-      isSimulationRunning = true;
-
-      // Update Live Code Section to show Vulnerable Code
-      updateCodeDisplay('vulnerable');
-
-      // Update Header & Banner
-      document.getElementById('header-badge').className = 'status-badge badge-outage';
-      document.getElementById('header-badge').textContent = 'CASCADING FAILURE DETECTED';
-
-      const banner = document.getElementById('live-alert-banner');
-      banner.className = 'alert-red';
-      banner.innerHTML = '<span>⚠️ <strong>Simulating Cascade:</strong> Unhandled exceptions leaking connections at 100 req/s...</span>';
-
-      // Rapid 5-connection leak animation (0.45s)
-      for (let i = 0; i < 5; i++) {
-        await sleep(180);
-        updateValve(i, 'cyl-leaked', 'LEAKED ⚠️', '💥');
-        document.getElementById('kpi-pool').textContent = `${4 - i} / 5`;
-        document.getElementById('kpi-pool').style.color = 'var(--danger)';
-      }
-
-      // Queue Saturation
-      const fillBar = document.getElementById('queue-fill-bar');
-      fillBar.style.width = '100%';
-      fillBar.style.background = 'var(--danger)';
-      document.getElementById('queue-count-text').textContent = '20 / 20 SATURATED (Deadlines Expiring!)';
-      document.getElementById('queue-count-text').style.color = 'var(--danger)';
-
-      // Telemetry Spikes
-      document.getElementById('kpi-error').textContent = '86.33%';
-      document.getElementById('kpi-error').style.color = 'var(--danger)';
-      document.getElementById('kpi-latency').textContent = '2000 ms';
-      document.getElementById('kpi-latency').style.color = 'var(--danger)';
-
-      banner.innerHTML = '<span>💥 <strong>CATASTROPHIC POOL STARVATION:</strong> All 5 connections leaked in 0.45s. Queue saturated. 269 timeouts. Error rate: 86.33%!</span>';
-
-      // Trigger backend state update in background
-      fetch('/api/demo/inject-fault', { method: 'POST' }).catch(() => {});
-      isSimulationRunning = false;
+    // SecOps Gate Actions
+    async function revokeSecOps() {
+      await fetch('/api/reset-approval', { method: 'POST' }).catch(() => {});
+      document.getElementById('secops-dot').className = 'secops-dot dot-rejected';
+      document.getElementById('secops-title').textContent = 'SecOps Policy Gate: Enforcing (Unauthorized)';
+      alert('SecOps authorization revoked. Candidate execution is now locked with HTTP 403 Forbidden.');
     }
 
-    // 2. TRIGGER AUTONOMOUS REPAIR & RECOVERY
-    async function triggerHealingSimulation() {
-      if (isSimulationRunning) return;
-      isSimulationRunning = true;
-
-      // Update Live Code Section to show Patched Code
-      updateCodeDisplay('patched');
-
-      document.getElementById('header-badge').className = 'status-badge badge-healing';
-      document.getElementById('header-badge').textContent = 'APPLYING AST PATCH...';
-
-      const banner = document.getElementById('live-alert-banner');
-      banner.className = 'alert-yellow';
-      banner.innerHTML = '<span>⚙️ <strong>AegisOS Engine:</strong> Synthesizing AST-constrained try...finally patch. Validating 9 safety rules...</span>';
-
-      await sleep(350);
-
-      // Unclog valves smoothly
-      for (let i = 0; i < 5; i++) {
-        await sleep(90);
-        updateValve(i, 'cyl-processing', 'HEALING...', '⚡');
-      }
-
-      await sleep(200);
-
-      // Healthy flow animation
-      for (let i = 0; i < 5; i++) {
-        updateValve(i, 'cyl-healthy', 'RELEASED ✓', '🚰');
-      }
-
-      // Restore Queue & KPIs
-      const fillBar = document.getElementById('queue-fill-bar');
-      fillBar.style.width = '5%';
-      fillBar.style.background = 'var(--success)';
-      document.getElementById('queue-count-text').textContent = '0 / 20 In-Flight (Healthy)';
-      document.getElementById('queue-count-text').style.color = 'var(--success)';
-
-      document.getElementById('kpi-pool').textContent = '5 / 5';
-      document.getElementById('kpi-pool').style.color = 'var(--success)';
-      document.getElementById('kpi-error').textContent = '0.67%';
-      document.getElementById('kpi-error').style.color = 'var(--success)';
-      document.getElementById('kpi-latency').textContent = '41 ms';
-      document.getElementById('kpi-latency').style.color = 'var(--success)';
-
-      document.getElementById('header-badge').className = 'status-badge badge-verified';
-      document.getElementById('header-badge').textContent = 'SYSTEM VERIFIED';
-
-      banner.className = 'alert-green';
-      banner.innerHTML = '<span>🛡️ <strong>SYSTEM HEALED & VERIFIED:</strong> Atomic try...finally active. 0 leaks, 0 wait events, 99.3 req/s throughput restored.</span>';
-
-      // Trigger backend update
-      fetch('/api/demo/verify-healed', { method: 'POST' }).catch(() => {});
-      isSimulationRunning = false;
-    }
-
-    // 3. TEST NEGATIVE CONTROL (INEFFECTIVE FIX)
-    async function triggerNegativeControlSimulation() {
-      if (isSimulationRunning) return;
-      isSimulationRunning = true;
-
-      // Update Live Code Section to show Negative Control Code
-      updateCodeDisplay('negative_control');
-
-      document.getElementById('header-badge').className = 'status-badge badge-outage';
-      document.getElementById('header-badge').textContent = 'INEFFECTIVE PATCH DETECTED';
-
-      const banner = document.getElementById('live-alert-banner');
-      banner.className = 'alert-yellow';
-      banner.innerHTML = '<span>⚠️ <strong>Evaluating Negative Control:</strong> Applying patch that only catches PaymentValidationError...</span>';
-
-      await sleep(300);
-
-      // Leaks re-occur
-      for (let i = 0; i < 5; i++) {
-        await sleep(150);
-        updateValve(i, 'cyl-leaked', 'LEAKED ⚠️', '💥');
-        document.getElementById('kpi-pool').textContent = `${4 - i} / 5`;
-      }
-
-      const fillBar = document.getElementById('queue-fill-bar');
-      fillBar.style.width = '100%';
-      fillBar.style.background = 'var(--danger)';
-      document.getElementById('queue-count-text').textContent = '20 / 20 QUEUE BACKLOG';
-      document.getElementById('queue-count-text').style.color = 'var(--danger)';
-
-      document.getElementById('kpi-error').textContent = '98.33%';
-      document.getElementById('kpi-error').style.color = 'var(--danger)';
-      document.getElementById('kpi-latency').textContent = '2000 ms';
-      document.getElementById('kpi-latency').style.color = 'var(--danger)';
-
-      banner.className = 'alert-red';
-      banner.innerHTML = '<span>❌ <strong>NEGATIVE CONTROL REJECTED (98.3% Failure):</strong> Superficial fix left TransientProcessingError unhandled. Mathematical proof that fake fixes fail!</span>';
-
-      fetch('/api/demo/test-negative-control', { method: 'POST' }).catch(() => {});
-      isSimulationRunning = false;
-    }
-
-    // SECOPS ZERO-TRUST ACTIONS
     async function approveSecOps() {
       await fetch('/api/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ approver: 'SecOps Lead', token: 'AEGIS-APPROVE-SEC-2026' }),
-      });
-      document.getElementById('gate-badge-text').textContent = 'APPROVED (SecOps Lead)';
-      document.getElementById('gate-badge-text').style.color = 'var(--success)';
-      const banner = document.getElementById('live-alert-banner');
-      banner.className = 'alert-green';
-      banner.innerHTML = '<span>🛡️ <strong>SECOPS AUTHORIZATION GRANTED:</strong> Sign-off token verified. Container execution unlocked.</span>';
-    }
-
-    async function revokeSecOps() {
-      await fetch('/api/reset-approval', { method: 'POST' });
-      document.getElementById('gate-badge-text').textContent = 'AWAITING APPROVAL (Policy Enforcing)';
-      document.getElementById('gate-badge-text').style.color = 'var(--danger)';
-      const banner = document.getElementById('live-alert-banner');
-      banner.className = 'alert-red';
-      banner.innerHTML = '<span>🔒 <strong>SECOPS SIGN-OFF REVOKED:</strong> Authorization token cleared. All container launching blocked.</span>';
+        body: JSON.stringify({ approver: 'SecOps Lead', token: 'AEGISOS-SEC-2026' }),
+      }).catch(() => {});
+      document.getElementById('secops-dot').className = 'secops-dot dot-approved';
+      document.getElementById('secops-title').textContent = 'SecOps Policy Gate: Approved (SecOps Lead)';
+      alert('SecOps authorization granted. Candidate container validation unlocked.');
     }
 
     async function probePolicy403() {
       try {
         const res = await fetch('/api/run-validation', { method: 'POST' });
         const data = await res.json();
-        const banner = document.getElementById('live-alert-banner');
         if (res.status === 403) {
-          banner.className = 'alert-red';
-          banner.innerHTML = `<span>🚨 <strong>HTTP 403 FORBIDDEN — POLICY GATE ENFORCED:</strong> ${data.detail}</span>`;
+          alert('🚨 HTTP 403 FORBIDDEN — POLICY GATE ENFORCED!\n' + data.detail);
         } else {
-          banner.className = 'alert-green';
-          banner.innerHTML = `<span>🛡️ <strong>HTTP 200 OK — AUTHORIZATION VERIFIED:</strong> ${data.message}</span>`;
+          alert('🛡️ HTTP 200 OK — AUTHORIZATION VERIFIED!\n' + data.message);
         }
       } catch (e) {
         alert(e);
